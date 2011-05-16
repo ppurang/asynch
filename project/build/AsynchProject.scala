@@ -7,8 +7,16 @@ import sbt._
 
 class AsynchProject (info: ProjectInfo) extends DefaultProject(info) {
 
+  //override def packageDocsJar = defaultJarPath("-javadoc.jar")
+  override def packageSrcJar= defaultJarPath("-sources.jar")
 
-  val scalate = "com.ning" % "async-http-client" % "1.6.3" withSources ()
+  val sourceArtifact = Artifact.sources(artifactID)
+  //val docsArtifact = Artifact.javadoc(artifactID)
+
+  override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageSrc)
+
+
+  val asyncHttpClient= "com.ning" % "async-http-client" % "1.6.3" withSources ()
 
   val scalatest = "org.scalatest" %% "scalatest" % "1.4.1" % "test" withSources()
 

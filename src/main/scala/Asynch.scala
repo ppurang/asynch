@@ -3,9 +3,14 @@ package org.purang.net
 package http
 
 object `package` {
+  //types
+  type Url = String
+  //todo would be nice to see a method like \n to concatenate headers together
+  type Headers = Vector[Header]
+  type Body = Option[String]
 
-  implicit object StringToList extends Function[String, List[String]] {
-    def apply(string: String) = List(string)
+  implicit object StringToVector extends Function[String, Vector[String]] {
+    def apply(string: String) = Vector(string)
   }
 
   implicit object MethodToString extends Function[Method, String] {
@@ -13,22 +18,26 @@ object `package` {
   }
 
   //type HeaderPartialFunction = String => Function[String, Header]
-  implicit def stringToHeaderValue(value: String): HeaderValue = HeaderValue(value)
+  //implicit def stringToHeaderValue(value: String): HeaderValue = HeaderValue(value)
 
-  implicit def listStringToHeaderValues(values: List[String]): HeaderValues = HeaderValues(values)
+  implicit def scalaIterableToHeaderValues(values: Iterable[String]): HeaderValues = {
+    HeaderValues(Vector() ++ values)
+  }
 
-  implicit def headerToHeaderList(header: Header): List[Header] = header :: Nil
+  implicit def stringToHeaderValue(value: String): HeaderValues = HeaderValues(value)
 
-  implicit def headerToHeaders(header: Header): Headers = Headers(Vector(header))
+  implicit def headerToVector(header: Header): Vector[Header] = Vector[Header](header)
 
-  implicit def headersToHeaderList(headers: Headers): Vector[Header] = headers.headers
+  //implicit def headerToHeaders(header: Header): Headers = Headers(Vector(header))
 
-  implicit def headersToString(headers: Headers): String = headers.toString
+  //implicit def headersToHeaderList(headers: Headers): Vector[Header] = headers.headers
 
   implicit def headersToString(headers: Vector[Header]): String = headers.mkString("\n")
 
+  implicit def stringToRequest(url: String): Request = Request(url)
+
   type Response = Either[Throwable, Tuple3[Int, Vector[Header], Option[String]]]
-  type ResponseHandler = Response => Any
+  type ResponseHandler[T] = Response => T
 
 
   def throwableToLeft[T](block: => T): Either[java.lang.Throwable, T] =
@@ -38,3 +47,6 @@ object `package` {
       case ex => Left(ex)
     }
 }
+
+
+

@@ -22,7 +22,7 @@ class HeaderSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       val header =  "Accept" `:` "application/json"
 
       then("header is created")
-      header should be(HeaderImp("Accept", "application/json"))
+      header should be(HeaderImpl("Accept", "application/json"))
       and("""string representations is "Accept: application/json" """)
       header.toString should be("""Accept: application/json""")
     }
@@ -32,10 +32,10 @@ class HeaderSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       import org.purang.net.http._
 
       when("""  "Accept" `:` "application/json" :: "text/html" """)
-      val header =  "Accept" `:`  "application/json" :: "text/html"
+      val header =  "Accept" `:`  "application/json" ++ "text/html"
 
       then("header is of created")
-      header should be(HeaderImp("Accept", "application/json" :: "text/html" :: Nil))
+      header should be(HeaderImpl("Accept", "application/json" ++ "text/html"))
       and("""string representations is "Accept: application/json, text/html" """)
       header.toString should be("""Accept: application/json, text/html""")
     }
@@ -46,12 +46,10 @@ class HeaderSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
       when("""  "Accept" `:` "application/json"  """)
             import org.purang.net.http._
-      val headers1 =   ("Accept" `:` "application/json" :: "text/html" :: "text/plain") :: ("Cache-Control" `:` "no-cache") :: ("Content-Type" `:` "text/plain")
-      val headers2 =   ("Accept" `:` "application/json" :: "text/html" :: "text/plain") + ("Cache-Control" `:` "no-cache") + ("Content-Type" `:` "text/plain")
+      val headers =   ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++ ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
       then("header is of type Header")
-      headers1 should be(List(HeaderImp("Accept",List("application/json", "text/html", "text/plain")), HeaderImp("Cache-Control",List("no-cache")), HeaderImp("Content-Type",List("text/plain"))))
-      (headers2: Vector[Header]) should be(Vector(HeaderImp("Accept",List("application/json", "text/html", "text/plain")), HeaderImp("Cache-Control",List("no-cache")), HeaderImp("Content-Type",List("text/plain"))))
+      headers should be(Vector(HeaderImpl("Accept",Vector("application/json", "text/html", "text/plain")), HeaderImpl("Cache-Control",Vector("no-cache")), HeaderImpl("Content-Type",Vector("text/plain"))))
       //println(headers2.mkString("\n"))
 
     }

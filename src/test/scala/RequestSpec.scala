@@ -27,14 +27,19 @@ class RequestSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
     scenario("create a request from a string and add headers to it") {
       given("a url and some headers")
       val url =  "http://www.google.com"
-      val headers =  ("Accept" `:` "application/json" :: "text/html" :: "text/plain") + ("Cache-Control" `:` "no-cache") + ("Content-Type" `:` "text/plain")
+      val headers =  ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++ ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
       when("headers are made to be sent to the request")
 
-      val req = GET > url >> headers >>> ""
+      val req = GET > url >> headers >>> "some text"
 
       then("it is a valid request")
-      println(req)
+      req.toString should be("""GET http://www.google.com
+Accept: application/json, text/html, text/plain
+Cache-Control: no-cache
+Content-Type: text/plain
+
+some text""")
     }
   }
 

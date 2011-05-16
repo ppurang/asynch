@@ -4,7 +4,7 @@ package http
 
 
 sealed trait Method {
-  def >(string: String): Request = Request(method = this, url = string)
+  def >(url: String): Request = Request((url, this))
 
   override def toString: String
 }
@@ -29,11 +29,11 @@ case object TRACE extends Method {
   override def toString: String = "TRACE"
 }
 
-class POST extends Method {
+case object POST extends Method {
   override def toString: String = "POST"
 }
 
-class PATCH extends Method {
+case object PATCH extends Method {
   override def toString: String = "PATCH"
 }
 
