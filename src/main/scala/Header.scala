@@ -19,3 +19,8 @@ case class HeaderValues(values: Vector[String])  {
   }
 }
 
+object ContentType extends Function[HeaderValues, Header] {
+  def apply(headerValues: HeaderValues) : Header =  "Content-Type" `:` headerValues
+}
+
+object ApplicationJson extends HeaderValues("application/json")

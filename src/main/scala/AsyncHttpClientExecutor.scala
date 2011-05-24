@@ -2,22 +2,21 @@ package org.purang.net
 package http.ning
 
 import com.ning.http.client.AsyncHandler.STATE
-import org.purang.net.http.`package`._
+import org.purang.net.http._
 import com.ning.http.client.{ProxyServer, AsyncHttpClientConfig, HttpResponseBodyPart, HttpResponseStatus, AsyncHandler, HttpResponseHeaders, RequestBuilder, AsyncHttpClient, Response => AResponse}
 import java.lang.{String, Throwable}
 import java.util.{List => JUL}
-import http.Request
 import collection.{Iterable, immutable}
 
 object `package` {
   implicit val executor = DefaultAsyncHttpClientExecutor
 }
 
-trait AsyncHttpClientExecutor extends (Request => Response) {
+trait AsyncHttpClientExecutor extends Executor {
   val client: AsyncHttpClient
 
-  def apply(req: Request) = {
-    throwableToLeft {
+  def apply(req: Request): ExecutedRequest = {
+    throwableToFailure(req){
       var builder = new RequestBuilder(req.method).setUrl(req.url)
       for (header <- req.headers;
            value <- header.values
@@ -36,10 +35,11 @@ trait AsyncHttpClientExecutor extends (Request => Response) {
           x ++ (y._1 `:` collectionAsScalaIterable(y._2))
         }
       }
-      (response.getStatusCode(), headers, Option(response.getResponseBody("UTF-8")))
+      (response.getStatusCode(), headers, Option(response.getResponseBody("UTF-8")), req)
     }
   }
 }
+
 
 class Handler extends AsyncHandler[AResponse] {
   val builder =
@@ -71,7 +71,6 @@ class Handler extends AsyncHandler[AResponse] {
 
 object DefaultAsyncHttpClientExecutor extends ConfiguredAsyncHttpClientExecutor {
   lazy val config: AsyncHttpClientConfig = new AsyncHttpClientConfig.Builder().setCompressionEnabled(true)
-          //.setProxyServer(new ProxyServer("172.16.42.42", 8080))
           .setAllowPoolingConnection(true)
           .setConnectionTimeoutInMs(500)
           .setRequestTimeoutInMs(3000).build();

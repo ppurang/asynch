@@ -4,7 +4,7 @@ package http
 
 
 sealed trait Method {
-  def >(url: String): Request = Request((url, this))
+  def >(url: String): Request = Request(this, url)
 
   override def toString: String
 }

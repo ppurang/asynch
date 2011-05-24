@@ -17,11 +17,13 @@ class AsynchProject (info: ProjectInfo) extends DefaultProject(info) {
 
 
   val asyncHttpClient= "com.ning" % "async-http-client" % "1.6.3" withSources ()
+  val scalazCore = "org.scalaz" %% "scalaz-core" % "6.0-SNAPSHOT"  withSources()
 
   val scalatest = "org.scalatest" %% "scalatest" % "1.4.1" % "test" withSources()
 
 
   val scalaTools = "scala tools repo" at "http://www.scala-tools.org/repo-releases"
+  val scalaToolsSnapshots = "Scala Tools Snapshots" at "http://scala-tools.org/repo-snapshots/"
   val mavenLocal = "Local Maven Repository" at "file://" + Path.userHome + "/.m2/repository"
   val ivyLocal = "Local Ivy Repository" at "file://" + Path.userHome + "/.ivy2/local"
   //val twitter = "twitter maven repo" at "http://maven.twttr.com/"

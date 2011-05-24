@@ -4,6 +4,9 @@ package http
 
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.{GivenWhenThen, FeatureSpec}
+import scalaz._
+import Scalaz._
+
 
 /**
  *
@@ -14,10 +17,11 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
   import org.purang.net.http.ning._
 
-  def printResponse(response: Response) = println(response match {
-    case Left(t) => t.printStackTrace
-    case Right(x) => println(x)
-  })
+  val bodyOnly: (Status, Headers, Body, Request) => String =
+    (status: Status, headers: Headers, body: Body, req: Request) => body.getOrElse("")
+
+  def printResponse(executedRequest: ExecutedRequest) =
+    println(executedRequest.fold(responseFailureToString, bodyOnly))
 
   feature("executor") {
 
@@ -28,11 +32,11 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
               ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
       when("it is executed")
-      then ("status is not -1")
-      (url >> headers) ~> ((x: Response) => x match {
-        case Left(t) => -1
-        case Right((status, _, _)) => status
-      }) should not be(-1)
+      then("status is not -1")
+      (url >> headers) ~> ((x: ExecutedRequest) => x.fold(
+        t => -1,
+        (status: Status, headers: Headers, body: Body, req: Request) => status
+      )) should be(302)
 
     }
 
@@ -43,35 +47,38 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
               ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
       when("it is executed")
-      val req = HEAD > url >> headers
-      req ~> ((x: Response) => x match {
-        case Left(t) => t.printStackTrace
-        case Right((302, rheaders, _)) => (GET > rheaders.filter(_.name.equals("Location"))(0).value >> headers) ~>
-                printResponse
+      (HEAD > url >> headers) ~> ((x: ExecutedRequest) => { x.fold(
+        (t:Throwable, _:Request) => t.printStackTrace,
+        x => {
+         x match  {
+           case (302, rheaders, _, _) =>
+             (GET > rheaders.filter(_.name.equals("Location"))(0).value >> headers) ~>
+                     printResponse
+           case _ => bodyOnly(x)
+         }
+       })
       })
     }
 
-    scenario("executes a request and returns a value") {
+   scenario("executes a request after modifying it and returns a value") {
       given("a request")
       val url = "http://www.google.com"
-      val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
-              ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
+      val contentType = ContentType(ApplicationJson)
+
+      implicit val reqWithApplicationJson : RequestModifier = (req:Request) => req >> contentType
 
       when("it is executed")
-      case class Status(n: Int)
-      val req = HEAD > url >> headers
-      val status: Status = req ~> {
-        _ match {
-          case Left(t) => Status(-1)
-          case Right((n, _, _)) => Status(n)
-        }
+     import Request._
+      val headersWereModified = (HEAD, url) ~> {
+        (x:ExecutedRequest) => x.fold(
+          t => false,
+          (status:Status, headers:Headers, body:Body, req:Request) => {println(req.headers);req.headers.contains(contentType)}
+        )
       }
 
       then("Status is returned")
-      status should be (Status(302))
-
-    }
-
+      headersWereModified should be (true)
+   }
 
 
   }

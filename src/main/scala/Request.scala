@@ -2,38 +2,47 @@ package org.purang.net
 
 package http
 
-trait Request {
-  val url: Url
+sealed trait Request {
   val method: Method
+  val url: Url
   val headers: Headers
   val body: Body
   def >> (additionalHeaders: Headers): Request
   def >>> (newBody: String) : Request
-  def ~>[T](f: ResponseHandler[T])(implicit executor: Request => Response) : T
+  def ~>[T](f: ExecutedRequestHandler[T])(implicit executor: Executor, adapter : RequestModifier) : T
 }
 
 object Request {
-  def apply(tuple: Tuple4[Url, Method, Headers, Body]) = {
+  implicit def apply(tuple: Tuple4[Method, Url,  Headers, Body]) : Request = {
     RequestImpl(tuple._1, tuple._2, tuple._3, tuple._4)
   }
-  def apply(tuple: Tuple2[Url, Method]) = {
+
+  implicit def apply(tuple: Tuple2[Method, Url]): Request = {
     RequestImpl(tuple._1, tuple._2)
   }
-  def apply(aurl: Url) = {
+
+  implicit def apply(aurl: Url) : Request = {
     RequestImpl(url = aurl)
   }
 }
 
-case class RequestImpl(url: Url, method: Method = GET, headers: Headers = Vector(), body: Body = None) extends Request {
+
+case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector(), body: Body = None) extends Request {
 
   def >> (additionalHeaders: Headers) = copy(headers = headers ++ additionalHeaders)
 
   def >>> (newBody: String) = copy(body = Option(newBody))
 
-  def ~>[T](f: ResponseHandler[T])(implicit executor: Request => Response) = f(executor(this))
+  def ~>[T](f: ExecutedRequestHandler[T])(implicit executor: Executor, adapter: RequestModifier) = f(executor(adapter(this)))
 
 
-  override def toString = method + " " +  url + "\n" + headers.mkString("\n") + "\n\n" + body.getOrElse("")
+  override def toString = body match {
+    case Some(x) =>"""%s%n%n%s""".format(incompleteToString, x)
+    case _ => incompleteToString
+  }
+
+  private lazy val incompleteToString: String = """%s %s%n%s""".format(method, url, headers.mkString("\n"))
+
 }
 
 /*
