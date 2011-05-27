@@ -35,11 +35,16 @@ trait AsyncHttpClientExecutor extends Executor {
           x ++ (y._1 `:` collectionAsScalaIterable(y._2))
         }
       }
-      (response.getStatusCode(), headers, Option(response.getResponseBody("UTF-8")), req)
+      val responseBody: String = response.getResponseBody("UTF-8")
+      val code: Int = response.getStatusCode()
+      val property: String = System.getProperty("asynch.debug")
+      if (property != null && property.toBoolean) {
+        println("[AsyncHttpClientExecutor]" + (code, headers, Option(responseBody), req))
+      }
+      (code, headers, Option(responseBody), req)
     }
   }
 }
-
 
 class Handler extends AsyncHandler[AResponse] {
   val builder =

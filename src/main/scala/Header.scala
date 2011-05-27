@@ -23,4 +23,9 @@ object ContentType extends Function[HeaderValues, Header] {
   def apply(headerValues: HeaderValues) : Header =  "Content-Type" `:` headerValues
 }
 
+object Accept extends Function[HeaderValues, Header] {
+  def apply(headerValues: HeaderValues) : Header =  "Accept" `:` headerValues
+}
+
 object ApplicationJson extends HeaderValues("application/json")
+object MultipartMixed extends HeaderValues("multipart/mixed")

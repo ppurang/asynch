@@ -17,6 +17,10 @@ object Request {
     RequestImpl(tuple._1, tuple._2, tuple._3, tuple._4)
   }
 
+  implicit def apply(tuple: Tuple3[Method, Url,  Headers]) : Request = {
+    RequestImpl(tuple._1, tuple._2, tuple._3)
+  }
+
   implicit def apply(tuple: Tuple2[Method, Url]): Request = {
     RequestImpl(tuple._1, tuple._2)
   }
@@ -25,7 +29,6 @@ object Request {
     RequestImpl(url = aurl)
   }
 }
-
 
 case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector(), body: Body = None) extends Request {
 

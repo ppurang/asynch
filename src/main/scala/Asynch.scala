@@ -4,7 +4,6 @@ package http
 
 import scalaz._
 import Scalaz._
-import scala.Some
 
 object `package` {
   //types
@@ -15,8 +14,8 @@ object `package` {
 
   type RequestModifier = Request => Request
 
-  //we don't need the following as
-  //implicit val noopReqEnhancer : RequestEnhancer = ((req:Request) => req)
+  /** the following overshadows the scala.Predef.conforms TODO is there a better way?*/
+  implicit val conforms : RequestModifier = (req:Request) => req
 
   type FailedRequest =  (Throwable, Request)
 
@@ -74,10 +73,14 @@ object `package` {
     }
 
   implicit def responseSuccessFunctionToTuple[T](f: (Status, Headers, Body, Request) => T ) = f.tupled
+
   implicit def responseFailureFunctionToTuple[T](f: (Throwable, Request) => T ) = f.tupled
 
   def responseFailureToString(t: Throwable, req: Request): String = throwableToString(t)
 
+  /**
+   * The following has been lifted from sbt/xsbt.
+   */
   def throwableToString(t: Throwable): String = {
     def isSbtClass(name: String) = name.startsWith("sbt") || name.startsWith("xsbt")
 

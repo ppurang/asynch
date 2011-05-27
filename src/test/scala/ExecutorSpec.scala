@@ -34,7 +34,7 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       when("it is executed")
       then("status is not -1")
       (url >> headers) ~> ((x: ExecutedRequest) => x.fold(
-        t => -1,
+        t => {t._1.printStackTrace ;-1},
         (status: Status, headers: Headers, body: Body, req: Request) => status
       )) should be(302)
 
@@ -53,8 +53,9 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
          x match  {
            case (302, rheaders, _, _) =>
              (GET > rheaders.filter(_.name.equals("Location"))(0).value >> headers) ~>
-                     printResponse
-           case _ => bodyOnly(x)
+                     { _.fold(t => fail(t._1), _ match {case (status,_,_,_) => status should be(200)})}
+                     //printResponse
+           case x => fail(x)
          }
        })
       })
@@ -68,11 +69,11 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       implicit val reqWithApplicationJson : RequestModifier = (req:Request) => req >> contentType
 
       when("it is executed")
-     import Request._
+      import Request.apply
       val headersWereModified = (HEAD, url) ~> {
         (x:ExecutedRequest) => x.fold(
           t => false,
-          (status:Status, headers:Headers, body:Body, req:Request) => {println(req.headers);req.headers.contains(contentType)}
+          (status:Status, headers:Headers, body:Body, req:Request) => req.headers.contains(contentType)
         )
       }
 
