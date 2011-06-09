@@ -16,8 +16,8 @@ class AsynchProject (info: ProjectInfo) extends DefaultProject(info) {
   override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageSrc)
 
 
-  val asyncHttpClient= "com.ning" % "async-http-client" % "1.6.3" withSources ()
-  val scalazCore = "org.scalaz" %% "scalaz-core" % "6.0-SNAPSHOT"  withSources()
+  val asyncHttpClient= "com.ning" % "async-http-client" % "1.6.4" withSources ()
+  val scalazCore = "org.scalaz" % "scalaz-core_2.9.0-1" % "6.0"  withSources()
 
   val scalatest = "org.scalatest" %% "scalatest" % "1.4.1" % "test" withSources()
 
