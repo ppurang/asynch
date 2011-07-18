@@ -14,9 +14,6 @@ object `package` {
 
   type RequestModifier = Request => Request
 
-  /** the following overshadows the scala.Predef.conforms TODO is there a better way?*/
-  implicit val conforms : RequestModifier = (req:Request) => req
-
   type FailedRequest =  (Throwable, Request)
 
   type AResponse = (Status, Headers, Body, Request)
@@ -29,13 +26,15 @@ object `package` {
 
   type ExecutedRequestHandler[T] = (ExecutedRequest => T)
 
+  /** the following overshadows the scala.Predef.conforms TODO is there a better way?*/
+  implicit val conforms : RequestModifier = (req:Request) => req
+
   implicit def responseToString(response: AResponse) = response match {
     case (_,_,Some(x),_) =>"""%s%n%n%s""".format(incompleteResponseToString(response), x)
     case _ => incompleteResponseToString(response)
   }
 
   private def incompleteResponseToString(response: AResponse) : String = """%s%n%s""".format(response._1, response._2.mkString("\n"))
-
 
   implicit object StringToVector extends Function[String, Vector[String]] {
     def apply(string: String) = Vector(string)
@@ -57,7 +56,7 @@ object `package` {
 
   implicit def stringToRequest(url: String): Request = Request(url)
 
-
+  @deprecated("no alternative", "0.2.3")
   def throwableToLeft[T](block: => T): Either[java.lang.Throwable, T] =
     try {
       Right(block)
@@ -76,11 +75,13 @@ object `package` {
 
   implicit def responseFailureFunctionToTuple[T](f: (Throwable, Request) => T ) = f.tupled
 
+  @deprecated("no alternative", "0.2.3")
   def responseFailureToString(t: Throwable, req: Request): String = throwableToString(t)
 
   /**
    * The following has been lifted from sbt/xsbt.
    */
+  @deprecated("no alternative", "0.2.3")
   def throwableToString(t: Throwable): String = {
     def isSbtClass(name: String) = name.startsWith("sbt") || name.startsWith("xsbt")
 
