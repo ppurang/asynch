@@ -31,7 +31,7 @@ class HeaderSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       given("the import org.purang.net.http._")
       import org.purang.net.http._
 
-      when("""  "Accept" `:` "application/json" :: "text/html" """)
+      when("""  "Accept" `:` "application/json" ++ "text/html" """)
       val header =  "Accept" `:`  "application/json" ++ "text/html"
 
       then("header is created")
