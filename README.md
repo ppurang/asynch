@@ -76,10 +76,10 @@ which in turn maybe followed by any headers in various forms
 
 or maybe even a body
 
-    POST >  "http://www.somehost.com" >> ContentType(ApplicationJson) >>> {"juicy":"yes"}
+    POST >  "http://www.somehost.com" >> ContentType(ApplicationJson) >>> """{"juicy":"yes"}"""
 
     //or skip those headers completely
-    POST >  "http://www.somehost.com" >>> {"juicy":"yes"}
+    POST >  "http://www.somehost.com" >>> """{"juicy":"yes"}"""
 
 Those are about all the ways you can prepare a request before it gets executed.
 
