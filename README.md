@@ -92,7 +92,7 @@ The end game we already covered in the previous section.
 
 ## Middle Earth
 
-In between the beginning and the end there is that pixie that actually does some work done. It is called the  `Executor`
+In between the beginning and the end there is that pixie that actually gets some work done. It is called the  `Executor`
 
     type Executor = Request => ExecutedRequest
 
