@@ -3,10 +3,9 @@ package http.ning
 
 import com.ning.http.client.AsyncHandler.STATE
 import org.purang.net.http._
-import com.ning.http.client.{ProxyServer, AsyncHttpClientConfig, HttpResponseBodyPart, HttpResponseStatus, AsyncHandler, HttpResponseHeaders, RequestBuilder, AsyncHttpClient, Response => AResponse}
+import com.ning.http.client.{AsyncHttpClientConfig, HttpResponseBodyPart, HttpResponseStatus, AsyncHandler, HttpResponseHeaders, RequestBuilder, AsyncHttpClient, Response => AResponse}
 import java.lang.{String, Throwable}
 import java.util.{List => JUL}
-import collection.{Iterable, immutable}
 
 object `package` {
   implicit val executor = DefaultAsyncHttpClientExecutor
