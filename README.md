@@ -102,6 +102,8 @@ Asynch at present comes with one executor based on `"com.ning" % "async-http-cli
 
     import org.purang.net.http.ning._
 
+This also allows configuring your own executor (with a proxy for instance or timeouts etc.).
+
 ## Why?
 
 By now you would be asking yourself, there are already some very good alternatives in [dispatch](http://dispatch.databinder.net/Dispatch.html) and [blueeyes](https://github.com/jdegoes/blueeyes) so - Why bother?
@@ -114,9 +116,13 @@ Pleasure of creating something is unbeatable too.
 
 Critique is sought actively. Help will be provided keenly. Contributions are welcome. Install simple build tool 0.10+, fork the repo and get hacking.
 
-## TODOs
+## TODOs and Limitations
 
 Publish artefact to a mvn repo - needed when riaks is there.
+Entity bodies can only be strings or types that can implictly be converted to strings.
+Not asynchronous as the name might suggest though this might change in the future.
+The only excutor might not be very robust.
+No Authentication support.
 
 ## LICENSE
 
