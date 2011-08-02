@@ -8,9 +8,9 @@ That's all it takes to execute a get on google once you have the imports in orde
     import scalaz._, Scalaz._
     import org.purang.net.http.ning._
 
-After that the thing to sort out is the function to deal with the aftermath of your call. The easiest thing is to either return the exception or the body of the response depending on which way the call went.
+After that the thing to sort out is the function to deal with the aftermath of your call. The easiest is to either return the exception or the body of the response depending on the results of the call.
 
-    (GET > "http://www.google.com") ~> {_.fold(_._1,  _._3)}
+    (GET > "http://www.google.com") ~> {_.fold(_._1,  _._3)} //_._1 returns a throwable _._3 returns a Some(body)
 
 That is really it. Almost.
 
@@ -22,7 +22,7 @@ The result of a 'asynch' call is
     // where 'or' is
     // type or[+E, +A] = scalaz.Validation[E, A]
 
-which in plain lingo would be: an executed request can either be a failed request or a request that successfully returns a response. Here are these two types broken down into their constituents. There is a reason even if subtle of why AResponse is not called a SuccessfulRequest: response with status 5xx or 4xx might be construed a failure.
+which in plain lingo would be: an executed request can either be a failed request or a request that successfully returns a response. There is a reason even if subtle of why AResponse is not called a SuccessfulRequest: response with status 5xx or 4xx might be construed a failure. Here are these two types broken down into their constituents.
 
     type FailedRequest =  (Throwable, Request)
     type AResponse = (Status, Headers, Body, Request)
@@ -31,7 +31,7 @@ It is time to show a more detailed and perhaps more useful request handling (kin
 
     (GET > someuri >> someheaders).~>[Throwable or Option[T]] {
       _.fold(
-        t => t,
+        t => t, //implcitly changed into a Throwable
         _ match {
           case (200, _, Some(body), _) => Some(body.asInstanceOf[T]) //ehhhmmm ugly use a view
           case (404, _, _, _) => None
@@ -76,23 +76,23 @@ which in turn maybe followed by any headers in various forms
 
 or maybe even a body
 
-    POST >  "http://www.somehost.com" >> ContentType(ApplicationJson) >>> """{"juicy":"yes"}"""
+    (POST >  "http://www.somehost.com" >> ContentType(ApplicationJson) >>> """{"juicy":"yes"}""")
 
     //or skip those headers completely
-    POST >  "http://www.somehost.com" >>> """{"juicy":"yes"}"""
+    (POST >  "http://www.somehost.com" >>> """{"juicy":"yes"}""")
 
 Those are about all the ways you can prepare a request before it gets executed.
 
 After you think your are ready to fire off the request just do
 
-    "http://www.host.com" >> Accept(ApplicationJson) ~> {...} // No http-method in the beginning? Defaults to GET.
+    ("http://www.host.com" >> Accept(ApplicationJson)) ~> {...} // No http-method in the beginning? Defaults to GET.
 
 The end game we already covered in the previous section.
 
 
 ## Middle Earth
 
-In between the beginning and the end there is that pixie that actually gets some work done. It is called the  `Executor`
+In between the beginning and the end there is that pixie that actually gets some work done. It is called the `Executor`
 
     type Executor = Request => ExecutedRequest
 
@@ -118,11 +118,11 @@ Critique is sought actively. Help will be provided keenly. Contributions are wel
 
 ## TODOs and Limitations
 
-Publish artefact to a mvn repo - needed when riaks is there.
-Entity bodies can only be strings or types that can implictly be converted to strings.
-Not asynchronous as the name might suggest though this might change in the future.
-The only excutor might not be very robust.
-No Authentication support.
+   * Publish artefact to a mvn repo - needed when riaks is there.
+   * Entity bodies can only be strings or types that can implictly be converted to strings.
+   * Not asynchronous as the name might suggest though this might change in the future.
+   * The only excutor might not be very robust.
+   * No Authentication support.
 
 ## LICENSE
 
