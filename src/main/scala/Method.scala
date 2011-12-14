@@ -30,11 +30,11 @@ case object OPTIONS extends Method {
 case object TRACE extends Method {
   override def toString: String = "TRACE"
 }
-
+//not idempotent
 case object POST extends Method {
   override def toString: String = "POST"
 }
-
+//idempotent? no but..
 case object PATCH extends Method {
   override def toString: String = "PATCH"
 }
