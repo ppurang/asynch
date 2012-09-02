@@ -2,6 +2,8 @@ package org.purang.net
 
 package http
 
+import scalaz.concurrent.Promise
+
 sealed trait Request {
   val method: Method
   val url: Url
@@ -10,18 +12,21 @@ sealed trait Request {
   def >> (additionalHeaders: Headers): Request
   def >>> (newBody: String) : Request
   def ~>[T](f: ExecutedRequestHandler[T])(implicit executor: Executor, adapter : RequestModifier) : T
+  def ~>>[T](f: ExecutedRequestHandler[T])(implicit executor: Executor, adapter : RequestModifier) : Promise[T] = Promise(
+   this.~>[T](f)(executor, adapter)
+  )
 }
 
 object Request {
-  implicit def apply(tuple: Tuple4[Method, Url,  Headers, Body]) : Request = {
+  implicit def apply(tuple: (Method, Url,  Headers, Body)) : Request = {
     RequestImpl(tuple._1, tuple._2, tuple._3, tuple._4)
   }
 
-  implicit def apply(tuple: Tuple3[Method, Url,  Headers]) : Request = {
+  implicit def apply(tuple: (Method, Url,  Headers)) : Request = {
     RequestImpl(tuple._1, tuple._2, tuple._3)
   }
 
-  implicit def apply(tuple: Tuple2[Method, Url]): Request = {
+  implicit def apply(tuple: (Method, Url)): Request = {
     RequestImpl(tuple._1, tuple._2)
   }
 

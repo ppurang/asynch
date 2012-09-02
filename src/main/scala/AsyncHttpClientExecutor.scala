@@ -6,9 +6,11 @@ import org.purang.net.http._
 import com.ning.http.client.{AsyncHttpClientConfig, HttpResponseBodyPart, HttpResponseStatus, AsyncHandler, HttpResponseHeaders, RequestBuilder, AsyncHttpClient, Response => AResponse}
 import java.lang.{String, Throwable}
 import java.util.{List => JUL}
+import java.util.concurrent.{ExecutorService, Executors}
 
 object `package` {
   implicit val executor = DefaultAsyncHttpClientExecutor
+  implicit val pool: ExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors())
 }
 
 trait AsyncHttpClientExecutor extends Executor {
@@ -74,10 +76,15 @@ class Handler extends AsyncHandler[AResponse] {
 }
 
 object DefaultAsyncHttpClientExecutor extends ConfiguredAsyncHttpClientExecutor {
-  lazy val config: AsyncHttpClientConfig = new AsyncHttpClientConfig.Builder().setCompressionEnabled(true)
-          .setAllowPoolingConnection(true)
-          .setConnectionTimeoutInMs(500)
-          .setRequestTimeoutInMs(3000).build();
+  lazy val config: AsyncHttpClientConfig = {
+    new AsyncHttpClientConfig.Builder()
+      .setCompressionEnabled(true)
+      .setAllowPoolingConnection(true)
+      .setConnectionTimeoutInMs(500)
+      .setRequestTimeoutInMs(3000)
+      .setExecutorService(pool)
+      .build()
+  };
 }
 
 trait ConfiguredAsyncHttpClientExecutor extends AsyncHttpClientExecutor {

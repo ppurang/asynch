@@ -1,6 +1,6 @@
 name := "asynch"
 
-version := "0.2.4"
+version := "0.2.5"
 
 organization := "org.purang.net"
 
@@ -13,3 +13,5 @@ libraryDependencies ++= Seq(
   )
 
 scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked")
+
+cancelable := true

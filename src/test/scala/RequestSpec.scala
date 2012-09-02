@@ -23,7 +23,6 @@ class RequestSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       req.body should be(None)
     }
 
-
     scenario("create a request from a string and add headers and a body to it") {
       given("a url and some headers")
       val url =  "http://www.google.com"

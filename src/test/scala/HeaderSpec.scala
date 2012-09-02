@@ -14,6 +14,7 @@ import org.scalatest.{GivenWhenThen, FeatureSpec}
 class HeaderSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
   feature("implicit header conversions") {
+
     scenario("create simple header") {
       given("the import org.purang.net.http._")
       import org.purang.net.http._
@@ -63,10 +64,5 @@ class HeaderSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       header should be("Accept" `:` "application/json")
     }
 
-
-
-
   }
-
-
 }

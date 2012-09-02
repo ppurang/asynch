@@ -27,5 +27,7 @@ object Accept extends Function[HeaderValues, Header] {
   def apply(headerValues: HeaderValues) : Header =  "Accept" `:` headerValues
 }
 
+object TextPlain extends HeaderValues("text/plain")
+object TextHtml extends HeaderValues("text/html")
 object ApplicationJson extends HeaderValues("application/json")
 object MultipartMixed extends HeaderValues("multipart/mixed")
