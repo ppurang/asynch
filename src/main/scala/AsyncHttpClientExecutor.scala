@@ -24,7 +24,7 @@ trait AsyncHttpClientExecutor extends Executor {
       ) builder = builder.addHeader(header.name, value)
       for (content <- req.body;
            str <- content
-      ) builder = builder.setBody(str)
+      ) builder = builder.setBody(str.getBytes("utf-8"))
 
       val response: AResponse = client.executeRequest[AResponse](builder.build(),
         (new Handler(): AsyncHandler[AResponse]))
