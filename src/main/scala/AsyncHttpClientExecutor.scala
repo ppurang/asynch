@@ -13,7 +13,7 @@ object `package` {
   implicit val pool: ExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors())
 }
 
-trait AsyncHttpClientExecutor extends Executor {
+trait AsyncHttpClientExecutor extends (Request => ExecutedRequest) {
   val client: AsyncHttpClient
 
   def apply(req: Request): ExecutedRequest = {

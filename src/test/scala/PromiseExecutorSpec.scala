@@ -23,70 +23,16 @@ class PromiseExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatc
   val bodyOnly: (Status, Headers, Body, Request) => String =
     (status: Status, headers: Headers, body: Body, req: Request) => body.getOrElse("")
 
-  def responseFailureToString(t: Throwable, req: Request): String = throwableToString(t)
-
-
-  def throwableToString(t: Throwable): String = {
-    def isSbtClass(name: String) = name.startsWith("sbt") || name.startsWith("xsbt")
-
-    def trimmed(throwable: Throwable, d: Int = 50): String = {
-      require(d >= 0)
-      val b = new StringBuilder()
-      def appendStackTrace(t: Throwable, first: Boolean) {
-        val include: StackTraceElement => Boolean =
-          if (d == 0)
-            element => !isSbtClass(element.getClassName)
-          else {
-            var count = d - 1
-            (_ => {
-              count -= 1;
-              count >= 0
-            })
-          }
-        def appendElement(e: StackTraceElement) {
-          b.append("\tat ")
-          b.append(e)
-          b.append('\n')
-        }
-        if (!first)
-          b.append("Caused by: ")
-        b.append(t)
-        b.append('\n')
-        val els = t.getStackTrace()
-        var i = 0
-        while ((i < els.size) && include(els(i))) {
-          appendElement(els(i))
-          i += 1
-        }
-      }
-      appendStackTrace(throwable, true)
-      var c = throwable
-      while (c.getCause() != null) {
-        c = c.getCause()
-        appendStackTrace(c, false)
-      }
-      b.toString()
-    }
-
-    trimmed(t);
-  }
-
-
-  def printResponse(executedRequest: ExecutedRequest) =
-    println(executedRequest.fold(responseFailureToString, bodyOnly))
-
-  import org.purang.net.http.ning._
-
 
   feature("executor") {
 
    /* scenario("executes a request that returns a promise") {
-      given("a request")
+      Given("a request")
       val url = "http://www.google.com"
       val contentType = ContentType(ApplicationJson)
       implicit val reqWithApplicationJson: RequestModifier = (req: Request) => req >> contentType
 
-      when("it is executed")
+      When("it is executed")
       import Request.apply
       val promiseOfHeadersWereModified = (HEAD, url) ~>> {
         (x: ExecutedRequest) => x.fold(
@@ -97,12 +43,12 @@ class PromiseExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatc
         )
       }
 
-      then("Status is returned")
+      Then("Status is returned")
       promiseOfHeadersWereModified() should be(true)
     } */
 
     scenario("executes requests that compose using promises") {
-      given("three requests")
+      Given("three requests")
       type Collectors = Int
       type Time = Long
       case class Apples(n: Int)
@@ -162,15 +108,15 @@ class PromiseExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatc
         )
       }
 
-      when("it is executed")
+      When("it is executed")
       val time: Promise[Time] = f(FruitGatherers(10)) flatMap g flatMap h
 
-      then("5000 ms are returned")
+      Then("5000 ms are returned")
       time() should be(5000)
     }
 
     scenario("executes requests that compose using promises gGood") {
-      given("three requests")
+      Given("three requests")
       type Collectors = Int
       type Time = Long
       case class Apples(n: Int)
@@ -234,17 +180,17 @@ class PromiseExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatc
         )
       }
 
-      when("it is executed")
+      When("it is executed")
       val time: Promise[Time] = f(FruitGatherers(10)) flatMap gGood flatMap h
 
-      then("5000 ms are returned")
+      Then("5000 ms are returned")
       time() should be(5000)
     }
 
 /*
     the following will hang for ever .. scalaz promises don't have timeouts!
     scenario("executes requests that compose using promises gBad") {
-      given("three requests")
+      Given("three requests")
       type Collectors = Int
       type Time = Long
       case class Apples(n: Int)
@@ -312,11 +258,11 @@ class PromiseExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatc
         )
       }
 
-      when("it is executed")
+      When("it is executed")
       println("---> 04")
       val time: Promise[Time] = f(FruitGatherers(10)) flatMap gBad flatMap h
 
-      then("5000 ms are returned")
+      Then("5000 ms are returned")
       println("---> 05")
       time() should be(0)
     }*/

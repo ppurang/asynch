@@ -7,7 +7,6 @@ import org.scalatest.{GivenWhenThen, FeatureSpec}
 import scalaz._
 import Scalaz._
 import scalaz.concurrent._
-import scalaz.concurrent.Strategy._
 import collection.immutable.Vector
 
 
@@ -17,6 +16,8 @@ import collection.immutable.Vector
  */
 
 class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
+  val contentType = ContentType(ApplicationJson)
+
 
 
   val bodyOnly: (Status, Headers, Body, Request) => String =
@@ -75,20 +76,20 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
   def printResponse(executedRequest: ExecutedRequest) =
     println(executedRequest.fold(responseFailureToString, bodyOnly))
 
-  import org.purang.net.http.ning._
-
 
   feature("executor") {
 
+    import org.purang.net.http.ning._
+
     scenario("executes a request") {
-      given("a request")
+      Given("a request")
       val url = "http://www.google.com"
       val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
               ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
-      when("it is executed")
-      then("status is not -1")
-      (url >> headers) ~> ((x: ExecutedRequest) => x.fold(
+      When("it is executed")
+      Then("status is not -1")
+      (url >> headers).~>((x: ExecutedRequest) => x.fold(
         t => {t._1.printStackTrace ;-1},
         (status: Status, headers: Headers, body: Body, req: Request) => status
       )) should be(302)
@@ -96,12 +97,12 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
     }
 
     scenario("executes a more complicated request") {
-      given("a request")
+      Given("a request")
       val url = "http://www.google.com"
       val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
               ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
-      when("it is executed")
+      When("it is executed")
       (HEAD > url >> headers) ~> ((x: ExecutedRequest) => { x.fold(
         (t:Throwable, _:Request) => t.printStackTrace,
         x => {
@@ -117,35 +118,30 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
     }
 
    scenario("executes a request after modifying it and returns a value") {
-      given("a request")
+      Given("a request")
       val url = "http://www.google.com"
-      val contentType = ContentType(ApplicationJson)
 
-      implicit val reqWithApplicationJson : RequestModifier = (req:Request) => req >> contentType
-
-      when("it is executed")
-      import Request.apply
-      val headersWereModified = (HEAD, url) ~> {
+     import MyImplicits.conforms
+     When("it is executed")
+      val headersWereModified = (HEAD > url) ~> {
         (x:ExecutedRequest) => x.fold(
           t => false,
           (status:Status, headers:Headers, body:Body, req:Request) => req.headers.contains(contentType)
         )
       }
 
-      then("Status is returned")
+      Then("Status is returned")
       headersWereModified should be (true)
    }
 
-   scenario("executes a request that returns a promise") {
-      given("a request")
+    scenario("executes a request that returns a promise") {
+      Given("a request")
       val url = "http://www.google.com"
       val contentType = ContentType(ApplicationJson)
       import scalaz.concurrent.Strategy._
-      implicit val reqWithApplicationJson : RequestModifier = (req:Request) => req >> contentType
-
-      when("it is executed")
-      import Request.apply
-      val promiseOfHeadersWereModified = (HEAD, url) ~>> {
+      import MyImplicits.conforms
+      When("it is executed")
+      val promiseOfHeadersWereModified = (HEAD > url) ~>> {
         (x:ExecutedRequest) => x.fold(
           t => false,
           (status:Status, headers:Headers, body:Body, req:Request) => {
@@ -154,12 +150,17 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         )
       }
 
-      then("Status is returned")
+      Then("Status is returned")
       promiseOfHeadersWereModified() should be (true)
-   }
+    }
+
+  }
+
+  feature("promise executor") {
+
 
     scenario("executes requests that compose using promises") {
-      given("three requests")
+      Given("three requests")
       type Collectors = Int
       type Time = Long
       case class Apples(n: Int)
@@ -182,12 +183,13 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
       val headers: Vector[Header] = Vector[Header]()
       implicit val testExecutor = TestExecutor(
-         Map(
-         (POST > "http://localhost:8080/apple/garden" >>> "10") -> (200, headers, Some((10*2).toString),  (POST > "http://localhost:8080/apple/garden" >>> "10")).success,
-         (POST > "http://localhost:8080/apple/press" >>> "20") -> (200, headers, Some(5.toString),  (POST > "http://localhost:8080/apple/press" >>> "20")).success,
-         (POST > "http://localhost:8080/person/dude/juice" >>> "5") -> (200, headers, Some(5000.toString),  (POST > "http://localhost:8080/person/dude/juice" >>> "5")).success
-         )
+        Map(
+          (POST > "http://localhost:8080/apple/garden" >>> "10") -> (200, headers, Some((10*2).toString),  (POST > "http://localhost:8080/apple/garden" >>> "10")).success,
+          (POST > "http://localhost:8080/apple/press" >>> "20") -> (200, headers, Some(5.toString),  (POST > "http://localhost:8080/apple/press" >>> "20")).success,
+          (POST > "http://localhost:8080/person/dude/juice" >>> "5") -> (200, headers, Some(5000.toString),  (POST > "http://localhost:8080/person/dude/juice" >>> "5")).success
+        )
       )
+
 
       val f: FruitGatherers => Promise[Apples] = gatherers => (POST > "http://localhost:8080/apple/garden" >>> gatherers.n.toString).~>> {
         _.fold(
@@ -219,11 +221,18 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
         )
       }
 
-      when("it is executed")
+      When("it is executed")
       val time: Promise[Time] = f(FruitGatherers(10)) flatMap g flatMap h
 
-      then("5000 ms are returned")
+      Then("5000 ms are returned")
       time() should be(5000)
     }
+
+  }
+
+  object MyImplicits {
+
+    implicit val conforms : RequestModifier = (req:Request) => req >> contentType
+
   }
 }

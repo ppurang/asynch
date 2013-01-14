@@ -84,13 +84,13 @@ class FutureExecutorSpec /*extends FeatureSpec with GivenWhenThen with ShouldMat
 
     scenario("executes a request that returns a future") {
       import org.purang.net.http.ning._
-      given("a request")
+      Given("a request")
       val url = "http://www.google.com"
       val contentType = ContentType(ApplicationJson)
       implicit val conforms: RequestModifier = (req: Request) => req >> contentType
       implicit val executionContext = ExecutionContext.fromExecutorService(new ForkJoinPool(10))
 
-      when("it is executed")
+      When("it is executed")
       import Request.apply
       val promiseOfHeadersWereModified = (HEAD >  url).~>>[Boolean]{
         (x: ExecutedRequest) => x.fold(
@@ -106,7 +106,7 @@ class FutureExecutorSpec /*extends FeatureSpec with GivenWhenThen with ShouldMat
     }
 
     scenario("executes requests that compose using promises") {
-      given("three requests")
+      Given("three requests")
       type Collectors = Int
       type Time = Long
       case class Apples(n: Int)
@@ -166,7 +166,7 @@ class FutureExecutorSpec /*extends FeatureSpec with GivenWhenThen with ShouldMat
         )
       }
 
-      when("it is executed")
+      When("it is executed")
       val time = f(FruitGatherers(10)) flatMap g flatMap h
 
       `then`("5000 ms are returned")
@@ -174,7 +174,7 @@ class FutureExecutorSpec /*extends FeatureSpec with GivenWhenThen with ShouldMat
     }
 
     /*scenario("executes requests that compose using promises 3") {
-      given("three requests")
+      Given("three requests")
       type Collectors = Int
       type Time = Long
       case class Apples(n: Int)
@@ -248,7 +248,7 @@ class FutureExecutorSpec /*extends FeatureSpec with GivenWhenThen with ShouldMat
         )
       }
 
-      when("it is executed")
+      When("it is executed")
       println("---> 04")
       val time: Promise[Time] = f(FruitGatherers(10)) flatMap gGood flatMap h
 
@@ -258,7 +258,7 @@ class FutureExecutorSpec /*extends FeatureSpec with GivenWhenThen with ShouldMat
     }
 
     scenario("executes requests that compose using promises take two") {
-      given("three requests")
+      Given("three requests")
       type Collectors = Int
       type Time = Long
       case class Apples(n: Int)
@@ -318,7 +318,7 @@ class FutureExecutorSpec /*extends FeatureSpec with GivenWhenThen with ShouldMat
         )
       }
 
-      when("it is executed")
+      When("it is executed")
       val timeToDrink: Time = for (
         someapples <- f(FruitGatherers(10));
         apples <- someapples;
@@ -328,7 +328,7 @@ class FutureExecutorSpec /*extends FeatureSpec with GivenWhenThen with ShouldMat
         time <- sometime
       ) yield time
 
-      then("5000 ms are returned")
+      Then("5000 ms are returned")
       timeToDrink should be(5000)
     }*/
 
