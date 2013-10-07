@@ -60,7 +60,7 @@ object `package` {
     try {
       block.success
     } catch {
-      case ex => (ex, req).fail
+      case ex : Throwable => (ex, req).fail
     }
 
   implicit def responseSuccessFunctionToTuple[T](f: (Status, Headers, Body, Request) => T ) = f.tupled
