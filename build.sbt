@@ -12,6 +12,15 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "1.9.1" % "test"
   )
 
+resolvers ++= Seq(
+  "jgit-repo" at "http://download.eclipse.org/jgit/maven",
+  "hexx-releases" at "https://github.com/hexx/maven/tree/gh-pages/releases"
+)
+
 scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-unchecked", "-language:_")
 
 cancelable := true
+
+seq(bintrayPublishSettings:_*)
+
+licenses += ("BSD", url("http://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
