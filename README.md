@@ -2,7 +2,7 @@
 
 Sbt library dependency
 
-    "org.purang.net" %% "asynch" %"0.3.0" withSources(),
+    libraryDependencies += "org.purang.net" %% "asynch" %"0.3.0" withSources()
 
 From
 
