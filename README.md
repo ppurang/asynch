@@ -1,3 +1,13 @@
+## Prologue
+
+Sbt library dependency
+
+    "org.purang.net" %% "asynch" %"0.3.0" withSources(),
+
+From
+
+    resolvers += "ppurang bintray" at " http://dl.bintray.com/ppurang/maven"
+
 ## Quick
 
     (GET > "http://www.google.com" >> "Accept" `:` "text/html") ~> {...}
