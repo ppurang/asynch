@@ -112,7 +112,7 @@ class PromiseExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatc
       val time: Promise[Time] = f(FruitGatherers(10)) flatMap g flatMap h
 
       Then("5000 ms are returned")
-      time() should be(5000)
+      time.get should be(5000)
     }
 
     scenario("executes requests that compose using promises gGood") {
@@ -184,7 +184,7 @@ class PromiseExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatc
       val time: Promise[Time] = f(FruitGatherers(10)) flatMap gGood flatMap h
 
       Then("5000 ms are returned")
-      time() should be(5000)
+      time.get should be(5000)
     }
 
 /*

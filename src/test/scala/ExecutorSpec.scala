@@ -151,7 +151,7 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       }
 
       Then("Status is returned")
-      promiseOfHeadersWereModified() should be (true)
+      promiseOfHeadersWereModified.get should be (true)
     }
 
   }
@@ -225,7 +225,7 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       val time: Promise[Time] = f(FruitGatherers(10)) flatMap g flatMap h
 
       Then("5000 ms are returned")
-      time() should be(5000)
+      time.get should be(5000)
     }
 
   }
