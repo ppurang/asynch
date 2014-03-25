@@ -1,15 +1,15 @@
 name := "asynch"
 
-version := "0.3.0"
+version := "0.3.1"
 
 organization := "org.purang.net"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.4"
 
 libraryDependencies ++= Seq(
-  "com.ning" % "async-http-client" % "1.7.22" withSources(),
-  "org.scalaz" %% "scalaz-core" % "7.0.5"  withSources(),
-  "org.scalaz" %% "scalaz-concurrent" % "7.0.5"  withSources(),
+  "com.ning" % "async-http-client" % "1.8.3" withSources(),
+  "org.scalaz" %% "scalaz-core" % "7.0.6"  withSources(),
+  "org.scalaz" %% "scalaz-concurrent" % "7.0.6"  withSources(),
   "org.scalatest" %% "scalatest" % "1.9.1" % "test"
   )
 
