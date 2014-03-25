@@ -6,11 +6,29 @@ import org.purang.net.http._
 import com.ning.http.client.{AsyncHttpClientConfig, HttpResponseBodyPart, HttpResponseStatus, AsyncHandler, HttpResponseHeaders, RequestBuilder, AsyncHttpClient, Response => AResponse}
 import java.lang.{String, Throwable}
 import java.util.{List => JUL}
-import java.util.concurrent.{ExecutorService, Executors}
+import java.util.concurrent.{ThreadFactory, ExecutorService, Executors}
+import java.util.concurrent.atomic.AtomicInteger
 
 object `package` {
   implicit val executor = DefaultAsyncHttpClientExecutor
-  implicit val pool: ExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors())
+    private object DefaultThreadFactory extends ThreadFactory { //based on java.util.concurrent.Executors.DefaultThreadFactory
+      val group: ThreadGroup = {
+        val s = System.getSecurityManager()
+        if (s != null) s.getThreadGroup() else Thread.currentThread().getThreadGroup()
+      }
+      val threadNumber = new AtomicInteger(1)
+      val namePrefix = "org.purang.net.http.ning.pool"
+
+      def newThread(r : Runnable) : Thread =  {
+          val t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement())
+          if (t.isDaemon())
+              t.setDaemon(false)
+          if (t.getPriority() != Thread.NORM_PRIORITY)
+              t.setPriority(Thread.NORM_PRIORITY)
+          t
+      }
+  }
+  implicit val pool: ExecutorService = Executors.newCachedThreadPool(DefaultThreadFactory)
 }
 
 trait AsyncHttpClientExecutor extends (Request => ExecutedRequest) {
