@@ -18,7 +18,7 @@ object `package` {
 
   type AResponse = (Status, Headers, Body, Request)
 
-  type or[+E, +A] = Validation[E, A]
+  type or[+E, +A] = \/[E, A]
 
   type ExecutedRequest = FailedRequest or AResponse
 
@@ -56,11 +56,11 @@ object `package` {
 
   implicit def stringToRequest(url: String): Request = Request(url)
 
-  def throwableToFailure[T](req: Request)(block: => T): Validation[(java.lang.Throwable, Request), T] =
+  def throwableToFailure[T](req: Request)(block: => T): (java.lang.Throwable, Request) or T =
     try {
-      block.success
+      block.right
     } catch {
-      case ex : Throwable => (ex, req).fail
+      case ex : Throwable => (ex, req).left
     }
 
   implicit def responseSuccessFunctionToTuple[T](f: (Status, Headers, Body, Request) => T ) = f.tupled

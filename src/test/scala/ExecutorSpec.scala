@@ -184,9 +184,9 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       val headers: Vector[Header] = Vector[Header]()
       implicit val testExecutor = TestExecutor(
         Map(
-          (POST > "http://localhost:8080/apple/garden" >>> "10") -> (200, headers, Some((10*2).toString),  (POST > "http://localhost:8080/apple/garden" >>> "10")).success,
-          (POST > "http://localhost:8080/apple/press" >>> "20") -> (200, headers, Some(5.toString),  (POST > "http://localhost:8080/apple/press" >>> "20")).success,
-          (POST > "http://localhost:8080/person/dude/juice" >>> "5") -> (200, headers, Some(5000.toString),  (POST > "http://localhost:8080/person/dude/juice" >>> "5")).success
+          (POST > "http://localhost:8080/apple/garden" >>> "10") -> (200, headers, Some((10*2).toString),  (POST > "http://localhost:8080/apple/garden" >>> "10")).right,
+          (POST > "http://localhost:8080/apple/press" >>> "20") -> (200, headers, Some(5.toString),  (POST > "http://localhost:8080/apple/press" >>> "20")).right,
+          (POST > "http://localhost:8080/person/dude/juice" >>> "5") -> (200, headers, Some(5000.toString),  (POST > "http://localhost:8080/person/dude/juice" >>> "5")).right
         )
       )
 

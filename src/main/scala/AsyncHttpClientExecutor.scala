@@ -49,7 +49,7 @@ trait AsyncHttpClientExecutor extends (Request => ExecutedRequest) {
 
 class Handler extends AsyncHandler[AResponse] {
   val builder =
-          new AResponse.ResponseBuilder();
+          new AResponse.ResponseBuilder()
 
   def onBodyPartReceived(content: HttpResponseBodyPart): STATE = {
       builder.accumulate(content)
@@ -67,7 +67,7 @@ class Handler extends AsyncHandler[AResponse] {
   }
 
   def onCompleted(): AResponse  = {
-    builder.build();
+    builder.build()
   }
 
   def onThrowable(t: Throwable) {
@@ -84,7 +84,7 @@ object DefaultAsyncHttpClientExecutor extends ConfiguredAsyncHttpClientExecutor 
       .setRequestTimeoutInMs(3000)
       .setExecutorService(pool)
       .build()
-  };
+  }
 }
 
 trait ConfiguredAsyncHttpClientExecutor extends AsyncHttpClientExecutor {
