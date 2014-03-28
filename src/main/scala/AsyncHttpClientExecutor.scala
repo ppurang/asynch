@@ -6,47 +6,69 @@ import org.purang.net.http._
 import com.ning.http.client.{AsyncHttpClientConfig, HttpResponseBodyPart, HttpResponseStatus, AsyncHandler, HttpResponseHeaders, RequestBuilder, AsyncHttpClient, Response => AResponse}
 import java.lang.{String, Throwable}
 import java.util.{List => JUL}
-import java.util.concurrent.{ThreadFactory, ExecutorService, Executors}
+import java.util.concurrent.{TimeUnit, ThreadFactory, ExecutorService, Executors}
 import java.util.concurrent.atomic.AtomicInteger
 
 object `package` {
-  implicit val executor = DefaultAsyncHttpClientExecutor
-    private object DefaultThreadFactory extends ThreadFactory { //based on java.util.concurrent.Executors.DefaultThreadFactory
-      val group: ThreadGroup = {
-        val s = System.getSecurityManager()
-        if (s != null) s.getThreadGroup() else Thread.currentThread().getThreadGroup()
-      }
-      val threadNumber = new AtomicInteger(1)
-      val namePrefix = "org.purang.net.http.ning.pool"
+  implicit val nonblockingexecutor = DefaultAsyncHttpClientNonBlockingExecutor
 
-      def newThread(r : Runnable) : Thread =  {
-          val t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement())
-          if (t.isDaemon())
-              t.setDaemon(false)
-          if (t.getPriority() != Thread.NORM_PRIORITY)
-              t.setPriority(Thread.NORM_PRIORITY)
-          t
+  private object DefaultThreadFactory extends ThreadFactory {
+    //based on java.util.concurrent.Executors.DefaultThreadFactory
+    val group: ThreadGroup = {
+      val s = System.getSecurityManager()
+      if (s != null) s.getThreadGroup() else Thread.currentThread().getThreadGroup()
+    }
+    val threadNumber = new AtomicInteger(1)
+    val namePrefix = "org.purang.net.http.ning.pool"
+
+    def newThread(r: Runnable): Thread = {
+
+      val t = new Thread(group, r, s"$namePrefix-${threadNumber.getAndIncrement()}")
+      debug{
+        s"new thread ${t.getName}"
       }
+      if (!t.isDaemon())
+        t.setDaemon(true)
+      if (t.getPriority() != Thread.NORM_PRIORITY)
+        t.setPriority(Thread.NORM_PRIORITY)
+      t
+    }
   }
   implicit val pool: ExecutorService = Executors.newCachedThreadPool(DefaultThreadFactory)
 }
 
-trait AsyncHttpClientExecutor extends (Request => ExecutedRequest) {
+
+
+trait AsyncHttpClientNonBlockingExecutor extends (Timeout => Request => NonBlockingExecutedRequest) {
   val client: AsyncHttpClient
 
-  def apply(req: Request): ExecutedRequest = {
-    throwableToFailure(req){
+  import scalaz.concurrent._
+  def apply(timeout: Timeout) = (req: Request) => {
+    debug {
+      s"Thread ${Thread.currentThread().getName}-${Thread.currentThread().getId} asking for a task to be run $req"
+    }
+    Task.apply({
       var builder = new RequestBuilder(req.method).setUrl(req.url)
-      for (header <- req.headers;
-           value <- header.values
-      ) builder = builder.addHeader(header.name, value)
-      for (content <- req.body;
-           str <- content
-      ) builder = builder.setBody(str.getBytes("utf-8"))
+      for {
+        header <- req.headers
+        value <- header.values
+      } builder = builder.addHeader(header.name, value)
 
-      val response: AResponse = client.executeRequest[AResponse](builder.build(),
-        (new Handler(): AsyncHandler[AResponse]))
-              .get()
+      for {
+        content <- req.body
+        str <- content
+      } builder = builder.setBody(str.getBytes("utf-8"))
+
+      //
+      debug{
+        s"blocking to execute $req on thread '${Thread.currentThread().getName}'-'${Thread.currentThread().getId}'"
+      }
+      val response: AResponse = client.executeRequest[AResponse](
+        builder.build(),
+        (new Handler(): AsyncHandler[AResponse])
+      ).get(timeout, TimeUnit.MILLISECONDS)
+
+
       import scala.collection.JavaConversions._
       import org.purang.net.http._
       val headers = mapAsScalaMap(response.getHeaders).foldLeft(Vector[Header]()) {
@@ -56,14 +78,18 @@ trait AsyncHttpClientExecutor extends (Request => ExecutedRequest) {
       }
       val responseBody: String = response.getResponseBody("UTF-8")
       val code: Int = response.getStatusCode()
-      val property: String = System.getProperty("asynch.debug")
-      if (property != null && property.toBoolean) {
-        println("[AsyncHttpClientExecutor]" + (code, headers, Option(responseBody), req))
+      debug {
+        f"'${Thread.currentThread().getName}'-'${Thread.currentThread().getId}' req: $req  %n resp: %n code: $code %n headers: $headers %n body: $responseBody"
       }
+
       (code, headers, Option(responseBody), req)
-    }
+    })
   }
+
 }
+
+
+
 
 class Handler extends AsyncHandler[AResponse] {
   val builder =
@@ -93,7 +119,7 @@ class Handler extends AsyncHandler[AResponse] {
   }
 }
 
-object DefaultAsyncHttpClientExecutor extends ConfiguredAsyncHttpClientExecutor {
+object DefaultAsyncHttpClientNonBlockingExecutor extends ConfiguredAsyncHttpClientExecutor with AsyncHttpClientNonBlockingExecutor {
   lazy val config: AsyncHttpClientConfig = {
     new AsyncHttpClientConfig.Builder()
       .setCompressionEnabled(true)
@@ -105,7 +131,7 @@ object DefaultAsyncHttpClientExecutor extends ConfiguredAsyncHttpClientExecutor 
   }
 }
 
-trait ConfiguredAsyncHttpClientExecutor extends AsyncHttpClientExecutor {
+trait ConfiguredAsyncHttpClientExecutor {
   val config: AsyncHttpClientConfig
   lazy val client: AsyncHttpClient = new AsyncHttpClient(config)
 }

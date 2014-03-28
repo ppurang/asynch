@@ -12,6 +12,8 @@ object `package` {
   type Headers = Vector[Header]
   type Body = Option[String]
 
+  type Timeout = Int
+
   type RequestModifier = Request => Request
 
   type FailedRequest =  (Throwable, Request)
@@ -22,9 +24,20 @@ object `package` {
 
   type ExecutedRequest = FailedRequest or AResponse
 
-  type Executor = Request => ExecutedRequest
+  type NonBlockingExecutedRequest = scalaz.concurrent.Task[AResponse]
+
+  type NonBlockingExecutor = Timeout => Request => NonBlockingExecutedRequest
 
   type ExecutedRequestHandler[T] = (ExecutedRequest => T)
+
+
+  def debug(msg: => String) = {
+    val property: String = System.getProperty("asynch.debug")
+    if (property != null && property.toBoolean) {
+      println(msg)
+    }
+  }
+
 
   /** the following overshadows the scala.Predef.conforms TODO is there a better way?*/
   //implicit val conforms : RequestModifier = (req:Request) => req

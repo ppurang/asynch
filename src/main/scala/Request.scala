@@ -2,7 +2,10 @@ package org.purang.net
 
 package http
 
-import scalaz.concurrent.Promise
+import scalaz._
+import Scalaz._
+import scalaz.concurrent.Task
+import scala.collection.mutable.ArrayBuffer
 
 sealed trait Request {
   val method: Method
@@ -11,10 +14,11 @@ sealed trait Request {
   val body: Body
   def >> (additionalHeaders: Headers): Request
   def >>> (newBody: String) : Request
-  def ~>[T](f: ExecutedRequestHandler[T])(implicit executor: Executor, adapter : RequestModifier) : T
-  def ~>>[T](f: ExecutedRequestHandler[T])(implicit executor: Executor, adapter : RequestModifier) : Promise[T] = Promise(
-   this.~>[T](f)(executor, adapter)
-  )
+  //the following blocks     // todo and should be based on the one below
+  def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout = 2000)(implicit executor: NonBlockingExecutor, adapter : RequestModifier) : T
+
+  //the following shouldn't block
+  def ~>>(timeout: Timeout = 2000)(implicit executor: NonBlockingExecutor, adapter : RequestModifier) : NonBlockingExecutedRequest
 }
 
 object Request {
@@ -37,11 +41,20 @@ object Request {
 
 case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector(), body: Body = None) extends Request {
 
-  def >> (additionalHeaders: Headers) = copy(headers = headers ++ additionalHeaders)
+  override def >> (additionalHeaders: Headers) = copy(headers = headers ++ additionalHeaders)
 
-  def >>> (newBody: String) = copy(body = Option(newBody))
+  override def >>> (newBody: String) = copy(body = Option(newBody))
 
-  def ~>[T](f: ExecutedRequestHandler[T])(implicit executor: Executor, adapter: RequestModifier) = f(executor(adapter(this)))
+  override def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout)(implicit executor: NonBlockingExecutor, adapter: RequestModifier) = {
+    var t = ArrayBuffer[T]()
+    ~>>(2000)(executor, adapter).runAsync {
+        case -\/(ex) => t = t += f((ex, this).left)
+        case \/-(r) => t += f(r.right)
+    }
+    t(0)
+  }
+
+  override def ~>>(timeout: Timeout)(implicit executor: NonBlockingExecutor, adapter: RequestModifier) =  executor(timeout)(adapter(this))
 
 
   override def toString = body match {
@@ -51,6 +64,7 @@ case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector
 
   private lazy val incompleteToString: String = """%s %s%n%s""".format(method, url, headers.mkString("\n"))
 
+  //the following shouldn't
 }
 
 /*

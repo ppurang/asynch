@@ -22,6 +22,8 @@ scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-unchec
 
 cancelable := true
 
+fork := true
+
 seq(bintrayPublishSettings:_*)
 
 licenses += ("BSD", url("http://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
