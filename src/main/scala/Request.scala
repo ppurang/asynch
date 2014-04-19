@@ -46,12 +46,11 @@ case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector
   override def >>> (newBody: String) = copy(body = Option(newBody))
 
   override def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout)(implicit executor: NonBlockingExecutor, adapter: RequestModifier) = {
-    var t = ArrayBuffer[T]()
-    ~>>(2000)(executor, adapter).runAsync {
-        case -\/(ex) => t = t += f((ex, this).left)
-        case \/-(r) => t += f(r.right)
-    }
-    t(0)
+    debug(s"executing blocking call with $timeout. Default is 2000 ms.")
+    ~>>(timeout)(executor, adapter).timed(timeout).attemptRun.fold (    // we pass timeout along and enforce enforce it on our own!
+        t => f((t, this).left),
+        r => f(r.right)
+    )
   }
 
   override def ~>>(timeout: Timeout)(implicit executor: NonBlockingExecutor, adapter: RequestModifier) =  executor(timeout)(adapter(this))

@@ -5,6 +5,7 @@ package http
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.{GivenWhenThen, FeatureSpec}
 import scalaz._, Scalaz._
+import java.util.concurrent.TimeoutException
 
 
 /**
@@ -101,16 +102,14 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
       When("it is executed")
       (HEAD > url >> headers) ~> ((x: ExecutedRequest) => { x.fold(
-        (t:Throwable, _:Request) => t.printStackTrace,
-        x => {
-         x match  {
+        (t:Throwable, _:Request) => fail(t),
+        _ match  {
            case (302, rheaders, _, _) =>
              (GET > rheaders.filter(_.name.equals("Location"))(0).value >> headers) ~>
-                     { _.fold(t => fail(t._1), _ match {case (status,_,_,_) => status should be(200)})}
+                     { _.fold(t => fail(t._1),  {case (status,_,_,_) => status should be(200)})}
                      //printResponse
-           case x => fail(x)
-         }
-       })
+           case y => fail(y)
+         })
       })
     }
 
@@ -131,6 +130,30 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       headersWereModified should be (true)
    }
   }
+
+  feature("misbehaving executor") {
+
+    implicit val exec = MisbehavingExecutor(60000) //make it very painful ;)
+    val timeout = 500 //oh we have an escape hatch .. hope it works
+
+    scenario("executes a request") {
+      Given("a request")
+      val url = "http://www.google.com"
+      val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
+              ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
+
+      When("it is executed")
+      Then("correct exception bubbles up")
+      (url >> headers).~>((x: ExecutedRequest) => x.fold(
+        t => {if(t._1.isInstanceOf[TimeoutException]) "Timeout" else t._1.getMessage},
+        (status: Status, headers: Headers, body: Body, req: Request) => "Succesful"
+      ), timeout) should be("Timeout")
+
+    }
+  }
+
+
+
 
   object MyImplicits {
     implicit val conforms: RequestModifier = (req: Request) => req >> contentType

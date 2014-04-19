@@ -12,7 +12,7 @@ object `package` {
   type Headers = Vector[Header]
   type Body = Option[String]
 
-  type Timeout = Int
+  type Timeout = Long
 
   type RequestModifier = Request => Request
 

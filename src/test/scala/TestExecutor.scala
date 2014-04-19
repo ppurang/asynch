@@ -14,3 +14,11 @@ case class TestExecutor(expected : Map[Request, ExecutedRequest]) extends (Timeo
     }
   })
 }
+
+case class MisbehavingExecutor(time: Int) extends (Timeout => Request => NonBlockingExecutedRequest) {
+  assert(time > 1000, s"well you are an optimist! you provided $time up it a few seconds")
+  def apply(t: Timeout) = req => Task({
+      Thread.sleep(time)
+      throw new Exception(s"Seriously! You waited $time ms for a response.")
+  })
+}
