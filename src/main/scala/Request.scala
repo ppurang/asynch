@@ -4,8 +4,6 @@ package http
 
 import scalaz._
 import Scalaz._
-import scalaz.concurrent.Task
-import scala.collection.mutable.ArrayBuffer
 
 sealed trait Request {
   val method: Method
@@ -47,7 +45,8 @@ case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector
 
   override def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout)(implicit executor: NonBlockingExecutor, adapter: RequestModifier) = {
     debug(s"executing blocking call with $timeout. Default is 2000 ms.")
-    ~>>(timeout)(executor, adapter).timed(timeout).attemptRun.fold (    // we pass timeout along and enforce enforce it on our own!
+    val task = ~>>(timeout)(executor, adapter).timed(timeout + 100) // we pass timeout along and enforce it on our own too by giving it about 100 ms!
+    task.attemptRun.fold (
         t => f((t, this).left),
         r => f(r.right)
     )
@@ -63,7 +62,6 @@ case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector
 
   private lazy val incompleteToString: String = """%s %s%n%s""".format(method, url, headers.mkString("\n"))
 
-  //the following shouldn't
 }
 
 /*
