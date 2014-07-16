@@ -31,10 +31,11 @@ object `package` {
   type ExecutedRequestHandler[T] = (ExecutedRequest => T)
 
 
-  def debug(msg: => String) = {
-    val property: String = System.getProperty("asynch.debug")
+  private lazy val property: String = System.getProperty("asynch.debug")
+
+  private[http] def debug(msg: => String) = {
     if (property != null && property.toBoolean) {
-      println(msg)
+      println("[ASYNCH] " + msg + "[/ASYNCH]")
     }
   }
 
