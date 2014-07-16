@@ -10,7 +10,8 @@ libraryDependencies ++= Seq(
   "com.ning" % "async-http-client" % "1.8.12" withSources(),
   "org.scalaz" %% "scalaz-core" % "7.0.6"  withSources(),
   "org.scalaz" %% "scalaz-concurrent" % "7.0.6"  withSources(),
-  "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+  "org.scalatest" %% "scalatest" % "1.9.1" % "test",
+  "ch.qos.logback" % "logback-classic" % "1.1.2" % "test"
   )
 
 scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-unchecked", "-language:_")
