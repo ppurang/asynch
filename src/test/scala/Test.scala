@@ -12,6 +12,8 @@ import ExecutionContext.Implicits.global
 object Test {
   import ning._
 
+  implicit val sse = java.util.concurrent.Executors.newScheduledThreadPool(5)
+
   def eventually[A](i: Int)(a: => A) = {
     Await.ready(Future {
       blocking(Thread.sleep(i)); a
@@ -20,11 +22,12 @@ object Test {
 
   def main(args: Array[String]) {
     System.setProperty("asynch.debug", "true")
-    //block(args(0))
-    nonblocking(args(0), 1000)
+    block(args(0))
+    //nonblocking2(args(0), 1000)
 
     eventually(2000) {
       pool.shutdownNow()
+      sse.shutdownNow()
       nonblockingexecutor.client.close()
     }
   }

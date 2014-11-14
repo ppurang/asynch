@@ -39,10 +39,10 @@ object `package` {
 
 
 
-trait AsyncHttpClientNonBlockingExecutor extends (Timeout => Request => NonBlockingExecutedRequest) {
+trait AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
   val client: AsyncHttpClient
 
-  import scalaz.concurrent._
+  import scalaz.concurrent.Task
   def apply(timeout: Timeout) = (req: Request) => {
     debug {
       s"Thread ${Thread.currentThread().getName}-${Thread.currentThread().getId} asking for a task to be run $req"

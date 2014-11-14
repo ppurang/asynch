@@ -3,7 +3,7 @@ package http
 import scalaz._, Scalaz._
 import concurrent.Task
 
-case class TestExecutor(expected : Map[Request, ExecutedRequest]) extends (Timeout => Request => NonBlockingExecutedRequest) {
+case class TestExecutor(expected : Map[Request, ExecutedRequest]) extends NonBlockingExecutor {
   def apply(t: Timeout) = req => Task({
     expected.get(req) match {
       case Some(x) => x fold (
@@ -15,7 +15,7 @@ case class TestExecutor(expected : Map[Request, ExecutedRequest]) extends (Timeo
   })
 }
 
-case class MisbehavingExecutor(time: Int) extends (Timeout => Request => NonBlockingExecutedRequest) {
+case class MisbehavingExecutor(time: Int)  extends NonBlockingExecutor {
   assert(time > 1000, s"well you are an optimist! you provided $time up it a few seconds")
   def apply(t: Timeout) = req => Task({
       Thread.sleep(time)

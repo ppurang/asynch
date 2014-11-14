@@ -2,6 +2,8 @@ package org.purang.net
 
 package http
 
+import java.util.concurrent.ScheduledExecutorService
+
 import scalaz._
 import Scalaz._
 
@@ -13,7 +15,7 @@ sealed trait Request {
   def >> (additionalHeaders: Headers): Request
   def >>> (newBody: String) : Request
   //the following blocks     // todo and should be based on the one below
-  def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout = 2000)(implicit executor: NonBlockingExecutor, adapter : RequestModifier) : T
+  def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout = 2000)(implicit executor: NonBlockingExecutor,  schExecutor: ScheduledExecutorService, adapter : RequestModifier) : T
 
   //the following shouldn't block
   def ~>>(timeout: Timeout = 2000)(implicit executor: NonBlockingExecutor, adapter : RequestModifier) : NonBlockingExecutedRequest
@@ -43,7 +45,7 @@ case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector
 
   override def >>> (newBody: String) = copy(body = Option(newBody))
 
-  override def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout)(implicit executor: NonBlockingExecutor, adapter: RequestModifier) = {
+  override def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout)(implicit executor: NonBlockingExecutor, schExecutor: ScheduledExecutorService , adapter: RequestModifier) = {
     debug(s"executing blocking call with $timeout. Default is 2000 ms.")
     val task = ~>>(timeout)(executor, adapter).timed(timeout + 100) // we pass timeout along and enforce it on our own too by giving it about 100 ms!
     task.attemptRun.fold (

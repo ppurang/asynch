@@ -26,7 +26,7 @@ object `package` {
 
   type NonBlockingExecutedRequest = scalaz.concurrent.Task[AResponse]
 
-  type NonBlockingExecutor = Timeout => Request => NonBlockingExecutedRequest
+  trait NonBlockingExecutor extends (Timeout => Request => NonBlockingExecutedRequest)
 
   type ExecutedRequestHandler[T] = (ExecutedRequest => T)
 

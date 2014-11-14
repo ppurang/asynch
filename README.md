@@ -2,7 +2,7 @@
 
 Sbt library dependency
 
-    libraryDependencies += "org.purang.net" %% "asynch" %"0.3.0" withSources()
+    libraryDependencies += "org.purang.net" %% "asynch" %"0.4.0" withSources()
 
 From
 
@@ -23,7 +23,7 @@ After that the thing to sort out is the function to deal with the aftermath of y
     (GET > "http://www.google.com") ~> {_.fold(_._1,  _._3)} //_._1 returns a throwable _._3 returns a Some(body)
 
 That is really it. Almost.
-
+                                                                
 ## End Details
 
 The result of a 'asynch' call is

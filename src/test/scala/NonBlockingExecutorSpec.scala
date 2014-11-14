@@ -3,8 +3,7 @@ package org.purang.net
 package http
 
 
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.{GivenWhenThen, FeatureSpec}
+import org.scalatest.{Matchers, GivenWhenThen, FeatureSpec}
 import scalaz._
 import Scalaz._
 import scalaz.concurrent._
@@ -18,7 +17,7 @@ import java.util.concurrent.TimeoutException
  * @author Piyush Purang
  */
 
-class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
+class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
   val contentType = ContentType(ApplicationJson)
 
@@ -35,7 +34,8 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Should
       val url = "http://www.google.com"
       val contentType = ContentType(ApplicationJson)
       import scalaz.concurrent.Strategy._
-      import MyImplicits.conforms
+      import MyImplicits.$conforms
+
       When("it is executed with 0 ms timeout")
       val timeout = (HEAD > url).~>>(0)
 
@@ -170,7 +170,7 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Should
   }
 
   object MyImplicits {
-    implicit val conforms: RequestModifier = (req: Request) => req >> contentType
+    implicit val $conforms: RequestModifier = (req: Request) => req >> contentType
   }
 
 }

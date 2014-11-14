@@ -2,8 +2,7 @@ package org.purang.net
 
 package http
 
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.{GivenWhenThen, FeatureSpec}
+import org.scalatest._
 import scalaz._, Scalaz._
 import java.util.concurrent.TimeoutException
 
@@ -13,15 +12,20 @@ import java.util.concurrent.TimeoutException
  * @author Piyush Purang
  */
 
-class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
+class ExecutorSpec extends FeatureSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
   val contentType = ContentType(ApplicationJson)
-
-
 
   val bodyOnly: (Status, Headers, Body, Request) => String =
     (status: Status, headers: Headers, body: Body, req: Request) => body.getOrElse("")
 
   def responseFailureToString(t: Throwable, req: Request): String = throwableToString(t)
+
+  implicit val sse = java.util.concurrent.Executors.newScheduledThreadPool(5)
+
+  override protected def afterAll() = {
+    super.afterAll()
+    sse.shutdownNow()
+  }
 
   /**
    * The following has been lifted from sbt/xsbt.
@@ -117,7 +121,7 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
       Given("a request")
       val url = "http://www.google.com"
 
-     import MyImplicits.conforms
+     import MyImplicits.$conforms
      When("it is executed")
       val headersWereModified = (HEAD > url) ~> {
         (x:ExecutedRequest) => x.fold(
@@ -156,7 +160,7 @@ class ExecutorSpec extends FeatureSpec with GivenWhenThen with ShouldMatchers {
 
 
   object MyImplicits {
-    implicit val conforms: RequestModifier = (req: Request) => req >> contentType
+    implicit val $conforms: RequestModifier = (req: Request) => req >> contentType
   }
 
 }
