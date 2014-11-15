@@ -6,8 +6,6 @@ package http
 import org.scalatest.{Matchers, GivenWhenThen, FeatureSpec}
 import scalaz._
 import Scalaz._
-import scalaz.concurrent._
-import scalaz.concurrent.Strategy._
 import collection.immutable.Vector
 import java.util.concurrent.TimeoutException
 
@@ -24,7 +22,6 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
   val bodyOnly: (Status, Headers, Body, Request) => String =
     (status: Status, headers: Headers, body: Body, req: Request) => body.getOrElse("")
 
-
   feature("non blocking executor") {
 
 
@@ -34,7 +31,6 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
       val url = "http://www.google.com"
       val contentType = ContentType(ApplicationJson)
       import scalaz.concurrent.Strategy._
-      import MyImplicits.$conforms
 
       When("it is executed with 0 ms timeout")
       val timeout = (HEAD > url).~>>(0)
@@ -169,8 +165,5 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
     }
   }
 
-  object MyImplicits {
-    implicit val $conforms: RequestModifier = (req: Request) => req >> contentType
-  }
 
 }

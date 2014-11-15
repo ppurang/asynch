@@ -48,7 +48,7 @@ trait AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
       s"Thread ${Thread.currentThread().getName}-${Thread.currentThread().getId} asking for a task to be run $req"
     }
     Task.apply({
-      var builder = new RequestBuilder(req.method).setUrl(req.url)
+      var builder = new RequestBuilder(req.method).setUrl(req.url.url)
       for {
         header <- req.headers
         value <- header.values

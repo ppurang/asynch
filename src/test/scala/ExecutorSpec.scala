@@ -71,7 +71,7 @@ class ExecutorSpec extends FeatureSpec with BeforeAndAfterAll with GivenWhenThen
       b.toString()
     }
 
-    trimmed(t);
+    trimmed(t)
   }
 
 
@@ -121,14 +121,13 @@ class ExecutorSpec extends FeatureSpec with BeforeAndAfterAll with GivenWhenThen
       Given("a request")
       val url = "http://www.google.com"
 
-     import MyImplicits.$conforms
      When("it is executed")
-      val headersWereModified = (HEAD > url) ~> {
+      val headersWereModified = (HEAD > url) ~>({
         (x:ExecutedRequest) => x.fold(
           t => false,
           (status:Status, headers:Headers, body:Body, req:Request) => req.headers.contains(contentType)
         )
-      }
+      }, modifier = requestModifier(_ >> contentType))
 
       Then("Status is returned")
       headersWereModified should be (true)
@@ -159,9 +158,6 @@ class ExecutorSpec extends FeatureSpec with BeforeAndAfterAll with GivenWhenThen
 
 
 
-  object MyImplicits {
-    implicit val $conforms: RequestModifier = (req: Request) => req >> contentType
-  }
 
 }
 

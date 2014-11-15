@@ -7,14 +7,29 @@ import Scalaz._
 
 object `package` {
   //types
-  type Url = String
+  implicit class Url(val url: String) extends AnyVal {
+    override def toString(): String = url
+  }
+
+  object Url {
+    implicit def unapply(url: Url): String = url.url
+  }
+
   type Status = Int
   type Headers = Vector[Header]
   type Body = Option[String]
 
-  type Timeout = Long
+  implicit class Timeout(val timeout: Long) extends AnyVal {
+    def +(delta: Long) = timeout + delta
+  }
+  object Timeout {
+    implicit def unapply(timeout: Timeout): Long = timeout.timeout
+  }
 
-  type RequestModifier = Request => Request
+
+  trait RequestModifier {
+    def modify: Request => Request
+  }
 
   type FailedRequest =  (Throwable, Request)
 
@@ -39,9 +54,15 @@ object `package` {
     }
   }
 
+  def requestModifier(mod: Request => Request) : RequestModifier = new RequestModifier {
+    override def modify = mod
+  }
 
-  /** the following overshadows the scala.Predef.conforms TODO is there a better way?*/
-  //implicit val conforms : RequestModifier = (req:Request) => req
+  private object NoopRequestModifier extends RequestModifier {
+    override def modify = req => req
+  }
+
+  implicit val noop: RequestModifier = NoopRequestModifier
 
   implicit def responseToString(response: AResponse) = response match {
     case (_,_,Some(x),_) =>"""%s%n%n%s""".format(incompleteResponseToString(response), x)
