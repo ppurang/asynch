@@ -10,7 +10,7 @@ From
 
 ## Quick
 
-The code below executes a **blocking** `POST` against `http://httpize.herokuapp.com/post` with request headers `Accept: application/json, text/html, text/plain`,  `Cache-Control: no-cache` and `Content-Type: text/plain`, and request entity `some very important message`. It expects a `200` with some response body. If it encounters an exception or another status code then they are returned too. The type returned is `\/[String, String]`: left (`-\/[String]`) `String` indicates the error, and the right (`\/-[String]`) `String` contains the successful response body.
+The code below executes a **blocking** `POST` against `http://httpize.herokuapp.com/post` with request headers `Accept: application/json, text/html, text/plain`,  `Cache-Control: no-cache` and `Content-Type: text/plain`, and request entity `some very important message`. It expects a `200` with some response body. If it encounters an exception or another status code then they are returned too. The type returned is `\/[String, String]`: left `String` (`-\/[String]`) indicates the error, and the right `String` (`\/-[String]`)  contains the successful response body.
 
 
 ```scala
