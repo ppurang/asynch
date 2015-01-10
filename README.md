@@ -2,7 +2,7 @@
 
 Sbt library dependency
 
-    libraryDependencies += "org.purang.net" %% "asynch" %"0.4.0" withSources()
+    libraryDependencies += "org.purang.net" %% "asynch" %"0.5.0" withSources()
 
 From
 
@@ -10,129 +10,81 @@ From
 
 ## Quick
 
-    (GET > "http://www.google.com" >> "Accept" `:` "text/html") ~> {...}
+The code below executes a **blocking** `POST` against `http://httpize.herokuapp.com/post` with request headers `Accept: application/json, text/html, text/plain`,  `Cache-Control: no-cache` and `Content-Type: text/plain`, and request entity `some very important message`. It expects a `200` with some response body. If it encounters an exception or another status code then they are returned too. The type returned is `\/[String, String]`: left (`-\/[String]`) String indicates the error, and the right (`\/-[String]`) String contains the successful response body.
 
-That's all it takes to execute a get on google once you have the imports in order (and __yes__ the __parentheses__ are required).
 
+```scala
     import org.purang.net.http._
     import scalaz._, Scalaz._
     import org.purang.net.http.ning._
 
-After that the thing to sort out is the function to deal with the aftermath of your call. The easiest is to either return the exception or the body of the response depending on the results of the call.
+    implicit val sse = java.util.concurrent.Executors.newScheduledThreadPool(2) //needed for timeouts
 
-    (GET > "http://www.google.com") ~> {_.fold(_._1,  _._3)} //_._1 returns a throwable _._3 returns a Some(body)
-
-That is really it. Almost.
-                                                                
-## End Details
-
-The result of a 'asynch' call is
-
-    type ExecutedRequest = FailedRequest or AResponse
-    // where 'or' is
-    // type or[+E, +A] = scalaz.Validation[E, A]
-
-which in plain lingo would be: an executed request can either be a failed request or a request that successfully returns a response. There is a reason even if subtle of why AResponse is not called a SuccessfulRequest: response with status 5xx or 4xx might be construed a failure. Here are these two types broken down into their constituents.
-
-    type FailedRequest =  (Throwable, Request)
-    type AResponse = (Status, Headers, Body, Request)
-
-It is time to show a more detailed and perhaps more useful request handling (kinda lifted from riaks)
-
-    (GET > someuri >> someheaders).~>[Throwable or Option[T]] {
-      _.fold(
-        t => t, //implcitly changed into a Throwable
-        _ match {
-          case (200, _, Some(body), _) => Some(body.asInstanceOf[T]) //ehhhmmm ugly use a view
-          case (404, _, _, _) => None
-          case x => RiakException("Retreiving key %s in bucket %s.".format(key, bucketUri), x)
-        }
-      )
-    }
-
-In the above example 'FailedRequest' is implicitly turned into a `Failure[Throwable]` the same thing happens with the `RiakException` later on in the `AResponse` handling. The response with status code 200 results in a `Success(Some(value))` while the 404 indicates a `Success(None)`. Every-other status results in a exception being raised (no it isn't thrown yet, a callback can do that if it so wishes).
-
-`Success` and `Failure` are part of scalaz `Validation` abstraction and is used for among other things the great 'fold' method.
-
-## Start Details
-
-Long before the end comes the beginning. Things usually begin with an HTTP method but needn't. For example:
-
-    GET  // not an executable request just yet
-
-that is  followed by a url against which the method needs to be called
-
-    (GET > "http://www.somehost.com")
-
-which in turn maybe followed by any headers in various forms
-
-    //one header
-    (GET > "http://www.somehost.com" >> "header-name" `:` "header-value")
-
-    //two headers
-    (GET > "http://www.somehost.com" >> "header-name" `:` "header-value" ++  "another" `:` "one")
-
-    //header with multiple values
-    (GET > "http://www.somehost.com" >> "Accept" `:` "application/json" ++ "text/html"
-
-    //multiple headers
-    (GET > "http://www.somehost.com" >> ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
-        ("Cache-Control" `:` "no-cache") ++
-        ("Content-Type" `:` "text/plain")
+    (POST >
+    "http://httpize.herokuapp.com/post" >>
+    ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
+    ("Cache-Control" `:` "no-cache") ++
+    ("Content-Type" `:` "text/plain") >>>
+    "some very important message").~>(
+      (x: ExecutedRequest) => x.fold(
+         t => t._1.getMessage.left,
+         {
+           case (200, _, Some(body), _) => body.right
+           case (status: Status, headers: Headers, body: Body, req: Request) => status.toString.left
+         }
+       )
     )
+```
 
-    //or use some predefined headers (use types to avoid spelling mistakes ruining the user experience)
-    (GET > "http://www.somehost.com" >> Accept(ApplicationJson))
+For examples of **non blocking/ asynchronous calls** look at  [src/test/scala/NonBlockingExecutorSpec.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/NonBlockingExecutorSpec.scala)
 
-or maybe even a body
+For examples of **blocking calls** look at  [src/test/scala/ExecutorSpec.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/ExecutorSpec.scala)
 
-    (POST >  "http://www.somehost.com" >> ContentType(ApplicationJson) >>> """{"juicy":"yes"}""")
-
-    //or skip those headers completely
-    (POST >  "http://www.somehost.com" >>> """{"juicy":"yes"}""")
-
-Those are about all the ways you can prepare a request before it gets executed.
-
-After you think your are ready to fire off the request just do
-
-    ("http://www.host.com" >> Accept(ApplicationJson)) ~> {...} // No http-method in the beginning? Defaults to GET.
-
-The end game we already covered in the previous section.
+For an example of a **custom configured executor** look at   [src/test/scala/CustomNingExecutorSpec.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/CustomNingExecutorSpec.scala)
 
 
-## Middle Earth
+```scala
+    implicit val sse = Executors.newScheduledThreadPool(2)
+    val pool = Executors.newCachedThreadPool(DefaultThreadFactory())
+    val config = new AsyncHttpClientConfig.Builder()
+      .setCompressionEnforced(true)
+      .setAllowPoolingConnections(true)
+      .setConnectTimeout(500)
+      .setRequestTimeout(3000)
+      .setExecutorService(pool)
+      .build()
+    implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config, pool.just)
+```
 
-In between the beginning and the end there is that pixie that actually gets some work done. It is called the `Executor`
+## Testing support? Easy.
 
-    type Executor = Request => ExecutedRequest
+Here is an example of test executor [src/test/scala/TestExecutor.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/TestExecutor.scala)
+ that looks up things in a Map used internally to test
 
-The method `~>` on  `Request` takes two arguments an `ExecutedRequestHandler` and an implicit `Executor`.
 
-Asynch at present comes with one executor based on `"com.ning" % "async-http-client" % "1.6.4"` which you bring into play by using the import
+## Philosophy
 
-    import org.purang.net.http.ning._
+0. Timeouts - Yes! we do timeouts.
+1. Immutable - API to assemble requests and response handling is immutable.
+2. Easy parts are easy (if you can look beyond weird operators and operator precedence). For example a request is easy to assemble
+`GET > "http://www.google.com"` actually even the `GET` isn't really needed either `("http://www.host.com" >> Accept(ApplicationJson))`.
+3. Full control -  you are forced to deal with the exceptions and responses. You even have the request that gt executed if you wanted to modify it to re-execute.
+4. Parts are done with scalaz goodness.
 
-This also allows configuring your own executor (with a proxy for instance or timeouts etc.).
 
-## Why?
+## Limitations
 
-By now you would be asking yourself, there are already some very good alternatives in [dispatch](http://dispatch.databinder.net/Dispatch.html) and [blueeyes](https://github.com/jdegoes/blueeyes) so - Why bother?
+    1. Entity bodies can only be strings or types that can implictly be converted to strings. No endless Streams.
+    2. No explicit Authentication support.
+    3. No web socket or such support.
+    4. Underlying http call infrastructure is as asynchronous, fast, bug-free as async-http-client.
+    5. No metrics and no circuit breakers.
 
-Learning aspect of API design in scala and just producing some code should never be underestimated. Principle of full information which in-turn allows the developer full control on how to react to a call gone bad was important too. A developer doesn't need to keep the request around till he comes to processing the results of a call as he has access to it when the callback gets called.
-
-Pleasure of creating something is unbeatable too.
 
 ## Help/Join
 
 Critique is sought actively. Help will be provided keenly. Contributions are welcome. Install simple build tool 0.10+, fork the repo and get hacking.
 
-## TODOs and Limitations
-
-   * Publish artefact to a mvn repo - needed when riaks is there.
-   * Entity bodies can only be strings or types that can implictly be converted to strings.
-   * Not asynchronous as the name might suggest though this might change in the future.
-   * The only excutor might not be very robust.
-   * No Authentication support.
 
 ## LICENSE
 
@@ -141,7 +93,6 @@ Critique is sought actively. Help will be provided keenly. Contributions are wel
 licenses += ("BSD", url("http://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
 
 ```
-
 
 ## Disclaimer
 

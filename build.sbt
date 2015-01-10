@@ -23,3 +23,28 @@ fork := true
 seq(bintrayPublishSettings:_*)
 
 licenses += ("BSD", url("http://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
+
+initialCommands in console :=
+  """
+    |import org.purang.net.http._
+    |import scalaz._, Scalaz._
+    |import org.purang.net.http.ning._
+    |
+    |implicit val sse = java.util.concurrent.Executors.newScheduledThreadPool(2)
+    |
+    |
+    |val response = (POST >
+    |   "http://httpize.herokuapp.com/post" >>
+    |   ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
+    |   ("Cache-Control" `:` "no-cache") ++
+    |   ("Content-Type" `:` "text/plain") >>>
+    |   "some very important message").~>(
+    |     (x: ExecutedRequest) => x.fold(
+    |        t => t._1.getMessage.left,
+    |        {
+    |          case (200, _, Some(body), _) => body.right
+    |          case (status: Status, headers: Headers, body: Body, req: Request) => status.toString.left
+    |        }
+    |      ))
+    |
+  """.stripMargin //to exit the console sse.close and defaultNonBlockingExecutor.close
