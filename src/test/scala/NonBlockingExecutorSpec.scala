@@ -2,18 +2,11 @@ package org.purang.net
 
 package http
 
-
 import org.scalatest.{Matchers, GivenWhenThen, FeatureSpec}
 import scalaz._
 import Scalaz._
 import collection.immutable.Vector
 import java.util.concurrent.TimeoutException
-
-
-/**
- *
- * @author Piyush Purang
- */
 
 class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
@@ -23,8 +16,6 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
     (status: Status, headers: Headers, body: Body, req: Request) => body.getOrElse("")
 
   feature("non blocking executor") {
-
-
     scenario("allows timeout") {
       import ning._
       Given("a request")
@@ -36,7 +27,7 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
       val timeout = (HEAD > url).~>>(0)
 
       Then("a timeout is raised")
-      timeout.attemptRun.fold(_.getCause.isInstanceOf[TimeoutException], _ => false) should be(true)
+      timeout.attemptRun.fold(_.isInstanceOf[TimeoutException], _ => false) should be(true)
     }
 
     scenario("executes requests that compose using promises") {
@@ -164,6 +155,4 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
       time should be(0)
     }
   }
-
-
 }

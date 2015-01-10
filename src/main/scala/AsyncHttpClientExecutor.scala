@@ -3,43 +3,41 @@ package http.ning
 
 import com.ning.http.client.AsyncHandler.STATE
 import org.purang.net.http._
-import com.ning.http.client.{AsyncHttpClientConfig, HttpResponseBodyPart, HttpResponseStatus, AsyncHandler, HttpResponseHeaders, RequestBuilder, AsyncHttpClient, Response => AResponse}
-import java.lang.{String, Throwable}
+import com.ning.http.client.{Response => AResponse, Request => ARequest, _}
 import java.util.{List => JUL}
-import java.util.concurrent.{TimeUnit, ThreadFactory, ExecutorService, Executors}
+import java.util.concurrent.{TimeUnit, ThreadFactory, ExecutorService}
 import java.util.concurrent.atomic.AtomicInteger
 
+import scalaz._
+
 object `package` {
-  implicit val nonblockingexecutor = DefaultAsyncHttpClientNonBlockingExecutor
-
-  private object DefaultThreadFactory extends ThreadFactory {
-    //based on java.util.concurrent.Executors.DefaultThreadFactory
-    val group: ThreadGroup = {
-      val s = System.getSecurityManager()
-      if (s != null) s.getThreadGroup() else Thread.currentThread().getThreadGroup()
-    }
-    val threadNumber = new AtomicInteger(1)
-    val namePrefix = "org.purang.net.http.ning.pool"
-
-    def newThread(r: Runnable): Thread = {
-
-      val t = new Thread(group, r, s"$namePrefix-${threadNumber.getAndIncrement()}")
-      debug{
-        s"new thread ${t.getName}"
-      }
-      if (!t.isDaemon())
-        t.setDaemon(true)
-      if (t.getPriority() != Thread.NORM_PRIORITY)
-        t.setPriority(Thread.NORM_PRIORITY)
-      t
-    }
-  }
-  implicit val pool: ExecutorService = Executors.newCachedThreadPool(DefaultThreadFactory)
+  implicit val defaultNonBlockingExecutor = DefaultAsyncHttpClientNonBlockingExecutor()
 }
 
+case class DefaultThreadFactory(namePrefix: String = "org.purang.net.http.ning.pool") extends ThreadFactory {
 
+  val threadNumber = new AtomicInteger(1)
 
-trait AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
+  //based on java.util.concurrent.Executors.DefaultThreadFactory
+  val group: ThreadGroup = {
+    val s = System.getSecurityManager
+    if (s != null) s.getThreadGroup else Thread.currentThread().getThreadGroup
+  }
+
+  def newThread(r: Runnable): Thread = {
+    val t = new Thread(group, r, s"$namePrefix-${threadNumber.getAndIncrement}")
+    debug{
+      s"new thread ${t.getName}"
+    }
+    if (!t.isDaemon)
+      t.setDaemon(true)
+    if (t.getPriority != Thread.NORM_PRIORITY)
+      t.setPriority(Thread.NORM_PRIORITY)
+    t
+  }
+}
+
+abstract class AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
   val client: AsyncHttpClient
 
   import scalaz.concurrent.Task
@@ -88,10 +86,7 @@ trait AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
 
 }
 
-
-
-
-class Handler extends AsyncHandler[AResponse] {
+class Handler extends AsyncHandler[AResponse]  {
   val builder =
           new AResponse.ResponseBuilder()
 
@@ -119,19 +114,23 @@ class Handler extends AsyncHandler[AResponse] {
   }
 }
 
-object DefaultAsyncHttpClientNonBlockingExecutor extends ConfiguredAsyncHttpClientExecutor with AsyncHttpClientNonBlockingExecutor {
-  lazy val config: AsyncHttpClientConfig = {
-    new AsyncHttpClientConfig.Builder()
-      .setCompressionEnabled(true)
-      .setAllowPoolingConnection(true)
-      .setConnectionTimeoutInMs(500)
-      .setRequestTimeoutInMs(3000)
-      .setExecutorService(pool)
-      .build()
+case class DefaultAsyncHttpClientNonBlockingExecutor( config : AsyncHttpClientConfig = {
+ new AsyncHttpClientConfig.Builder()
+    .setCompressionEnforced(true)
+    .setAllowPoolingConnections(true)
+    .setConnectTimeout(500)
+    .setRequestTimeout(3000)
+    .build()
+}, pool: Maybe[ExecutorService] = Maybe.empty)
+  extends ConfiguredAsyncHttpClientExecutor {
+
+  def close() = {
+    this.client.close()
+    pool.map(_.shutdownNow())
   }
 }
 
-trait ConfiguredAsyncHttpClientExecutor {
+trait ConfiguredAsyncHttpClientExecutor extends AsyncHttpClientNonBlockingExecutor {
   val config: AsyncHttpClientConfig
   lazy val client: AsyncHttpClient = new AsyncHttpClient(config)
 }

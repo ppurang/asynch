@@ -2,8 +2,6 @@ package org.purang.net
 
 package http
 
-import com.ning.http.client.AsyncHttpClient
-
 import concurrent._
 import concurrent.duration._
 import FiniteDuration._
@@ -26,9 +24,8 @@ object Test {
     //nonblocking2(args(0), 1000)
 
     eventually(2000) {
-      pool.shutdownNow()
       sse.shutdownNow()
-      nonblockingexecutor.client.close()
+      defaultNonBlockingExecutor.close()
     }
   }
 
