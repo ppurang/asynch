@@ -10,7 +10,7 @@ From
 
 ## Quick
 
-The code below executes a **blocking** `POST` against `http://httpize.herokuapp.com/post` with request headers `Accept: application/json, text/html, text/plain`,  `Cache-Control: no-cache` and `Content-Type: text/plain`, and request entity `some very important message`. It expects a `200` with some response body. If it encounters an exception or another status code then they are returned too. The type returned is `\/[String, String]`: left (`-\/[String]`) String indicates the error, and the right (`\/-[String]`) String contains the successful response body.
+The code below executes a **blocking** `POST` against `http://httpize.herokuapp.com/post` with request headers `Accept: application/json, text/html, text/plain`,  `Cache-Control: no-cache` and `Content-Type: text/plain`, and request entity `some very important message`. It expects a `200` with some response body. If it encounters an exception or another status code then they are returned too. The type returned is `\/[String, String]`: left (`-\/[String]`) `String` indicates the error, and the right (`\/-[String]`) `String` contains the successful response body.
 
 
 ```scala
@@ -40,7 +40,7 @@ For examples of **non blocking/ asynchronous calls** look at  [src/test/scala/No
 
 For examples of **blocking calls** look at  [src/test/scala/ExecutorSpec.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/ExecutorSpec.scala)
 
-For an example of a **custom configured executor** look at   [src/test/scala/CustomNingExecutorSpec.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/CustomNingExecutorSpec.scala)
+For an example of a **custom configured executor** look at [src/test/scala/CustomNingExecutorSpec.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/CustomNingExecutorSpec.scala). Here is the meat of the code:
 
 
 ```scala
@@ -56,10 +56,29 @@ val config = new AsyncHttpClientConfig.Builder()
 implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config, pool.just)
 ```
 
+## Types
+
+
+```scala
+type FailedRequest =  (Throwable, Request)
+
+type AResponse = (Status, Headers, Body, Request)
+
+type or[+E, +A] = \/[E, A]
+
+type ExecutedRequest = FailedRequest or AResponse
+
+type NonBlockingExecutedRequest = scalaz.concurrent.Task[AResponse]
+
+trait NonBlockingExecutor extends (Timeout => Request => NonBlockingExecutedRequest)
+
+type ExecutedRequestHandler[T] = (ExecutedRequest => T)
+```
+
 ## Testing support? Easy.
 
 Here is an example of test executor [src/test/scala/TestExecutor.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/TestExecutor.scala)
- that looks up things in a Map used internally to test
+ that looks up things in a Map used internally to test things.
 
 
 ## Philosophy
@@ -74,16 +93,17 @@ Here is an example of test executor [src/test/scala/TestExecutor.scala](https://
 
 ## Limitations
 
-    1. Entity bodies can only be strings or types that can implictly be converted to strings. No endless Streams.
-    2. No explicit Authentication support.
-    3. No web socket or such support.
-    4. Underlying http call infrastructure is as asynchronous, fast, bug-free as async-http-client.
-    5. No metrics and no circuit breakers.
+0. Too many implicits!
+1. Entity bodies can only be strings or types that can implictly be converted to strings. No endless Streams.
+2. No explicit Authentication support.
+3. No web socket or such support.
+4. Underlying http call infrastructure is as asynchronous, fast, bug-free as async-http-client.
+5. No metrics and no circuit breakers.
 
 
 ## Help/Join
 
-Critique is sought actively. Help will be provided keenly. Contributions are welcome. Install simple build tool 0.10+, fork the repo and get hacking.
+Critique is sought actively. Help will be provided keenly. Contributions are welcome. Install simple build tool 0.13+, fork the repo and get hacking.
 
 
 ## LICENSE
