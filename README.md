@@ -87,7 +87,7 @@ Here is an example of test executor [src/test/scala/TestExecutor.scala](https://
 1. Immutable - API to assemble requests and response handling is immutable.
 2. Easy parts are easy (if you can look beyond weird operators and operator precedence). For example a request is easy to assemble
 `GET > "http://www.google.com"` actually even the `GET` isn't really needed either `("http://www.host.com" >> Accept(ApplicationJson))`.
-3. Full control -  you are forced to deal with the exceptions and responses. You even have the request that gt executed if you wanted to modify it to re-execute.
+3. Full control -  you are forced to deal with the exceptions and responses. You even have the request that got executed if you wanted to modify it to re-execute.
 4. Parts are done with scalaz goodness.
 
 
