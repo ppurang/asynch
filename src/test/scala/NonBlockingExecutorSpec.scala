@@ -8,6 +8,8 @@ import Scalaz._
 import collection.immutable.Vector
 import java.util.concurrent.TimeoutException
 
+import scalaz.concurrent.Task
+
 class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matchers {
 
   val contentType = ContentType(ApplicationJson)
@@ -30,7 +32,7 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
       timeout.attemptRun.fold(_.isInstanceOf[TimeoutException], _ => false) should be(true)
     }
 
-    scenario("executes requests that compose using promises") {
+    scenario("executes requests using tasks where all tasks succeed") {
       Given("three requests")
       type Collectors = Int
       type Time = Long
@@ -61,39 +63,33 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
         )
       )
 
-      val f: FruitGatherers => Apples = gatherers => (POST > "http://localhost:8080/apple/garden" >>> gatherers.n.toString).~>>().attemptRun.fold(
-          t => Apples(0),
-          p => p match {
-            case (200, _, Some(body), _) => Apples_.fromJson(body)
-            case _ => Apples(0)
-          }
-        )
+      val f = (gatherers: FruitGatherers) => (POST > "http://localhost:8080/apple/garden" >>> gatherers.n.toString).~>>().map({
+        case (200, _, Some(body), _) => Apples_.fromJson(body)
+        case _ => Apples(0)
+      })
 
-      val g: Apples => JuiceCartons = apples => (POST > "http://localhost:8080/apple/press" >>> apples.n.toString).~>>().attemptRun.fold(
-          t => JuiceCartons(0),
-          p => p match {
-            case (200, _, Some(body), _) => JuiceCartons_.fromJson(body)
-            case _ => JuiceCartons(0)
-          }
-        )
+      val g= (apples:Apples) => (POST > "http://localhost:8080/apple/press" >>> apples.n.toString).~>>().map({
+        case (200, _, Some(body), _) => JuiceCartons_.fromJson(body)
+        case _ => JuiceCartons(0)
+      })
 
-
-      val h: JuiceCartons => Time = juiceCartons => (POST > "http://localhost:8080/person/dude/juice" >>> juiceCartons.n.toString).~>>().attemptRun.fold(
-          t => 0,
-          p => p match {
-            case (200, _, Some(body), _) => body.toLong
-            case _ => 10
-          }
-        )
+      val h = (juiceCartons: JuiceCartons) => (POST > "http://localhost:8080/person/dude/juice" >>> juiceCartons.n.toString).~>>().map({
+        case (200, _, Some(body), _) => body.toLong
+        case _ => 10
+      })
 
       When("it is executed")
-      val time: Time = h(g(f(FruitGatherers(10))))
+      val task: Task[Long] = for {
+        apples <- f(FruitGatherers(10))
+        juice <- g(apples)
+        time <- h(juice)
+      } yield time
 
       Then("5000 ms are returned")
-      time should be(5000)
+      task.attemptRun should be(\/-(5000))
    }
 
-    scenario("executes requests that compose using promises gBad") {
+    scenario("executes requests using tasks where one fails") {
       Given("three requests")
       type Collectors = Int
       type Time = Long
@@ -124,35 +120,33 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
         )
       )
 
-      val f: FruitGatherers => Apples = gatherers => (POST > "http://localhost:8080/apple/garden" >>> gatherers.n.toString).~>>().attemptRun.fold(
-          t => Apples(0),
-          p => p match {
-            case (200, _, Some(body), _) => Apples_.fromJson(body)
-            case _ => Apples(0)
-          }
-        )
+      val f = (gatherers: FruitGatherers) => (POST > "http://localhost:8080/apple/garden" >>> gatherers.n.toString).~>>().map({
+        case (200, _, Some(body), _) => Apples_.fromJson(body)
+        case _ => Apples(0)
+      })
 
-      val gBad: Apples => JuiceCartons = apples =>  (POST > "http://localhost:8080/apple/press" >>> apples.n.toString).~>>().attemptRun.fold(
-                t => JuiceCartons(0),
-                p => p match {
-                  case (200, _, Some(body), _) => JuiceCartons_.fromJson(body)
-                  case _ => JuiceCartons(0)
-                }
-              )
+      val g= (apples:Apples) => (POST > "http://localhost:8080/apple/press" >>> apples.n.toString).~>>().map({
+        case (200, _, Some(body), _) => JuiceCartons_.fromJson(body)
+        case _ => JuiceCartons(0)
+      })
 
-      val h: JuiceCartons => Time = juiceCartons => (POST > "http://localhost:8080/person/dude/juice" >>> juiceCartons.n.toString).~>>().attemptRun.fold(
-          t => 0,
-          p => p match {
-            case (200, _, Some(body), _) => body.toLong
-            case _ => 10
-          }
-        )
+      val h = (juiceCartons: JuiceCartons) => (POST > "http://localhost:8080/person/dude/juice" >>> juiceCartons.n.toString).~>>().map({
+        case (200, _, Some(body), _) => body.toLong
+        case _ => 10
+      })
 
       When("it is executed")
-      val time: Time = h(gBad(f(FruitGatherers(10))))
+      val task: Task[Long] = for {
+        apples <- f(FruitGatherers(10))
+        juice <- g(apples)
+        time <- h(juice)
+      } yield time
 
       Then("0 ms are returned")
-      time should be(0)
+      task.attemptRun.fold(
+        left => -1.left,
+        _.right
+      ) should be(-\/(-1))
     }
   }
 }
