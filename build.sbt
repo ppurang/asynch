@@ -1,17 +1,17 @@
 name := "asynch"
 
-version := "0.5.0"
+version := "0.5.1"
 
 organization := "org.purang.net"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
-  "com.ning" % "async-http-client" % "1.9.3" withSources(),
-  "org.scalaz" %% "scalaz-core" % "7.1.0"  withSources(),
-  "org.scalaz" %% "scalaz-concurrent" % "7.1.0"  withSources(),
-  "org.scalatest" %% "scalatest" % "2.2.1" % "test",
-  "ch.qos.logback" % "logback-classic" % "1.1.2" % "test"
+  "com.ning" % "async-http-client" % "1.9.31" withSources(),
+  "org.scalaz" %% "scalaz-core" % "7.1.3"  withSources(),
+  "org.scalaz" %% "scalaz-concurrent" % "7.1.3"  withSources(),
+  "org.scalatest" %% "scalatest" % "2.2.4" % "test",
+  "ch.qos.logback" % "logback-classic" % "1.1.3" % "test"
   )
 
 scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-unchecked", "-language:_")
