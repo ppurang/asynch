@@ -1,11 +1,14 @@
 package org.purang.net
 package http.ning
 
-import com.ning.http.client.AsyncHandler.STATE
+//import org.asynchttpclient._
+import java.nio.charset.StandardCharsets
+import java.util
+
 import org.purang.net.http._
-import com.ning.http.client.{Response => AResponse, Request => ARequest, _}
+import org.asynchttpclient.{Request => ARequest, Response => AResponse, _}
 import java.util.{List => JUL}
-import java.util.concurrent.{TimeUnit, ThreadFactory, ExecutorService}
+import java.util.concurrent.{ExecutorService, ThreadFactory, TimeUnit}
 import java.util.concurrent.atomic.AtomicInteger
 
 import scalaz._
@@ -69,12 +72,14 @@ abstract class AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
 
       import scala.collection.JavaConversions._
       import org.purang.net.http._
-      val headers = mapAsScalaMap(response.getHeaders).foldLeft(Vector[Header]()) {
-        (x: Vector[Header], y: Tuple2[String, JUL[String]]) => {
-          x ++ (y._1 `:` collectionAsScalaIterable(y._2))
-        }
+
+      implicit val mapEntryToTuple : java.util.Map.Entry[String,String] => (String, String) = x => x.getKey -> x.getValue
+      val headers = response.getHeaders.groupBy(_.getKey).foldLeft(Vector[Header]()) {
+        case (headers, (key, iterable)) =>
+          val map: util.Collection[String] = iterable.map(_.getValue)
+          headers ++ (key `:` collectionAsScalaIterable(map))
       }
-      val responseBody: String = response.getResponseBody("UTF-8")
+      val responseBody: String = response.getResponseBody(StandardCharsets.UTF_8)
       val code: Int = response.getStatusCode()
       debug {
         f"'${Thread.currentThread().getName}'-'${Thread.currentThread().getId}' req: $req  %n resp: %n code: $code %n headers: $headers %n body: $responseBody"
@@ -90,19 +95,19 @@ class Handler extends AsyncHandler[AResponse]  {
   val builder =
           new AResponse.ResponseBuilder()
 
-  def onBodyPartReceived(content: HttpResponseBodyPart): STATE = {
+  def onBodyPartReceived(content: HttpResponseBodyPart): AsyncHandler.State = {
       builder.accumulate(content)
-      STATE.CONTINUE
+    AsyncHandler.State.CONTINUE
   }
 
-  def onStatusReceived(status: HttpResponseStatus): STATE = {
+  def onStatusReceived(status: HttpResponseStatus): AsyncHandler.State = {
       builder.accumulate(status)
-      STATE.CONTINUE
+    AsyncHandler.State.CONTINUE
   }
 
-  def onHeadersReceived( headers: HttpResponseHeaders) : STATE = {
+  def onHeadersReceived( headers: HttpResponseHeaders) : AsyncHandler.State = {
       builder.accumulate(headers)
-      STATE.CONTINUE
+    AsyncHandler.State.CONTINUE
   }
 
   def onCompleted(): AResponse  = {
@@ -115,22 +120,20 @@ class Handler extends AsyncHandler[AResponse]  {
 }
 
 case class DefaultAsyncHttpClientNonBlockingExecutor( config : AsyncHttpClientConfig = {
- new AsyncHttpClientConfig.Builder()
+ new DefaultAsyncHttpClientConfig.Builder()
     .setCompressionEnforced(true)
-    .setAllowPoolingConnections(true)
     .setConnectTimeout(500)
     .setRequestTimeout(3000)
     .build()
-}, pool: Maybe[ExecutorService] = Maybe.empty)
+})
   extends ConfiguredAsyncHttpClientExecutor {
 
   def close() = {
     this.client.close()
-    pool.map(_.shutdownNow())
   }
 }
 
 trait ConfiguredAsyncHttpClientExecutor extends AsyncHttpClientNonBlockingExecutor {
   val config: AsyncHttpClientConfig
-  lazy val client: AsyncHttpClient = new AsyncHttpClient(config)
+  lazy val client: AsyncHttpClient = new DefaultAsyncHttpClient(config)
 }

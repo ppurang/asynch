@@ -29,7 +29,7 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
       val timeout = (HEAD > url).~>>(0)
 
       Then("a timeout is raised")
-      timeout.attemptRun.fold(_.isInstanceOf[TimeoutException], _ => false) should be(true)
+      timeout.unsafePerformSyncAttempt.fold(_.isInstanceOf[TimeoutException], _ => false) should be(true)
     }
 
     scenario("executes requests using tasks where all tasks succeed") {
@@ -86,7 +86,7 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
       } yield time
 
       Then("5000 ms are returned")
-      task.attemptRun should be(\/-(5000))
+      task.unsafePerformSyncAttempt should be(\/-(5000))
    }
 
     scenario("executes requests using tasks where one fails") {
@@ -143,7 +143,7 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
       } yield time
 
       Then("0 ms are returned")
-      task.attemptRun.fold(
+      task.unsafePerformSyncAttempt.fold(
         left => -1.left,
         _.right
       ) should be(-\/(-1))

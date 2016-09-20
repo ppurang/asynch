@@ -16,24 +16,35 @@ The code below executes a **blocking** `POST` against `http://httpize.herokuapp.
 ```scala
 import org.purang.net.http._
 import scalaz._, Scalaz._
-import org.purang.net.http.ning._
+import org.purang.net.http.ning.DefaultAsyncHttpClientNonBlockingExecutor
+import org.asynchttpclient.DefaultAsyncHttpClientConfig
 
-implicit val sse = java.util.concurrent.Executors.newScheduledThreadPool(2) //needed for timeouts
+implicit val sse = java.util.concurrent.Executors.newScheduledThreadPool(2)
+val config = new DefaultAsyncHttpClientConfig.Builder()
+  .setCompressionEnforced(true)
+  .setConnectTimeout(500)
+  .setRequestTimeout(3000)
+  .build()
+implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
 
-(POST >
-"http://httpize.herokuapp.com/post" >>
-("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
-("Cache-Control" `:` "no-cache") ++
-("Content-Type" `:` "text/plain") >>>
-"some very important message").~>(
-  (x: ExecutedRequest) => x.fold(
-     t => t._1.getMessage.left,
-     {
-       case (200, _, Some(body), _) => body.right
-       case (status: Status, headers: Headers, body: Body, req: Request) => status.toString.left
-     }
-   )
-)
+val response = (POST >
+   "http://httpize.herokuapp.com/post" >>
+   ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
+   ("Cache-Control" `:` "no-cache") ++
+   ("Content-Type" `:` "text/plain") >>>
+   "some very important message").~>(
+     (x: ExecutedRequest) => x.fold(
+        t => t._1.getMessage.left,
+        {
+          case (200, _, Some(body), _) => body.right
+          case (status: Status, headers: Headers, body: Body, req: Request) => status.toString.left
+        }
+      ))
+
+
+// close the client
+// newExecutor.close()
+// sse.shutdownNow()
 ```
 
 For examples of **non blocking/ asynchronous calls** look at  [src/test/scala/NonBlockingExecutorSpec.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/NonBlockingExecutorSpec.scala)
@@ -45,15 +56,14 @@ For an example of a **custom configured executor** look at [src/test/scala/Custo
 
 ```scala
 implicit val sse = Executors.newScheduledThreadPool(2)
-val pool = Executors.newCachedThreadPool(DefaultThreadFactory())
-val config = new AsyncHttpClientConfig.Builder()
+val config = new DefaultAsyncHttpClientConfig.Builder()
   .setCompressionEnforced(true)
   .setAllowPoolingConnections(true)
   .setConnectTimeout(500)
   .setRequestTimeout(3000)
   .setExecutorService(pool)
   .build()
-implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config, pool.just)
+implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
 ```
 
 ## Types

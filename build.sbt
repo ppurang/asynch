@@ -1,17 +1,17 @@
 name := "asynch"
 
-version := "0.5.1"
+version := "0.6.0"
 
 organization := "org.purang.net"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
-  "com.ning" % "async-http-client" % "1.9.31" withSources(),
-  "org.scalaz" %% "scalaz-core" % "7.1.3"  withSources(),
-  "org.scalaz" %% "scalaz-concurrent" % "7.1.3"  withSources(),
-  "org.scalatest" %% "scalatest" % "2.2.4" % "test",
-  "ch.qos.logback" % "logback-classic" % "1.1.3" % "test"
+  "org.asynchttpclient" % "async-http-client" % "2.0.15" withSources(),
+  "org.scalaz" %% "scalaz-core" % "7.2.6"  withSources(),
+  "org.scalaz" %% "scalaz-concurrent" % "7.2.6"  withSources(),
+  "org.scalatest" %% "scalatest" % "3.0.0" % "test",
+  "ch.qos.logback" % "logback-classic" % "1.1.7" % "test"
   )
 
 scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-unchecked", "-language:_")
@@ -28,10 +28,16 @@ initialCommands in console :=
   """
     |import org.purang.net.http._
     |import scalaz._, Scalaz._
-    |import org.purang.net.http.ning._
+    |import org.purang.net.http.ning.DefaultAsyncHttpClientNonBlockingExecutor
+    |import org.asynchttpclient.DefaultAsyncHttpClientConfig
     |
     |implicit val sse = java.util.concurrent.Executors.newScheduledThreadPool(2)
-    |
+    |val config = new DefaultAsyncHttpClientConfig.Builder()
+    |  .setCompressionEnforced(true)
+    |  .setConnectTimeout(500)
+    |  .setRequestTimeout(3000)
+    |  .build()
+    |implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
     |
     |val response = (POST >
     |   "http://httpize.herokuapp.com/post" >>
@@ -47,4 +53,8 @@ initialCommands in console :=
     |        }
     |      ))
     |
+    |
+    |// close the client
+    |// newExecutor.close()
+    |// sse.shutdownNow()
   """.stripMargin //to exit the console sse.close and defaultNonBlockingExecutor.close

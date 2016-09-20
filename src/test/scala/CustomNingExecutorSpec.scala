@@ -3,8 +3,7 @@ package org.purang.net
 package http
 
 import java.util.concurrent.Executors
-
-import com.ning.http.client.AsyncHttpClientConfig
+import org.asynchttpclient._
 import org.scalatest.{FlatSpec, Matchers}
 import org.purang.net.http.ning.{defaultNonBlockingExecutor => _, _}
 import scalaz._, Scalaz._
@@ -13,15 +12,12 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
 
   "ning package" should "allow configuring and using async http client executor" in {
     implicit val sse = Executors.newScheduledThreadPool(2)
-    val pool = Executors.newCachedThreadPool(DefaultThreadFactory())
-    val config = new AsyncHttpClientConfig.Builder()
+    val config = new DefaultAsyncHttpClientConfig.Builder()
       .setCompressionEnforced(true)
-      .setAllowPoolingConnections(true)
       .setConnectTimeout(500)
       .setRequestTimeout(3000)
-      .setExecutorService(pool)
       .build()
-    implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config, pool.just)
+    implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
     val url = "http://www.google.com"
     val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++ ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
@@ -37,15 +33,12 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
     {
       implicit val sse = Executors.newScheduledThreadPool(2)
 
-      val pool = Executors.newCachedThreadPool(DefaultThreadFactory())
-      val config = new AsyncHttpClientConfig.Builder()
+      val config = new DefaultAsyncHttpClientConfig.Builder()
         .setCompressionEnforced(true)
-        .setAllowPoolingConnections(true)
         .setConnectTimeout(500)
         .setRequestTimeout(3000)
-        .setExecutorService(pool)
         .build()
-      implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config, pool.just)
+      implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
       val url = "http://www.google.com"
       val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++ ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
@@ -60,15 +53,12 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
     }
     {
       implicit val sse = Executors.newScheduledThreadPool(2)
-      val pool = Executors.newCachedThreadPool(DefaultThreadFactory())
-      val config = new AsyncHttpClientConfig.Builder()
+      val config = new DefaultAsyncHttpClientConfig.Builder()
         .setCompressionEnforced(true)
-        .setAllowPoolingConnections(true)
         .setConnectTimeout(500)
         .setRequestTimeout(3000)
-        .setExecutorService(pool)
         .build()
-      implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config, pool.just)
+      implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
       val url = "http://www.google.com"
       val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++ ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
@@ -86,15 +76,12 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
     {
       implicit val sse = Executors.newScheduledThreadPool(2)
 
-      val pool = Executors.newCachedThreadPool(DefaultThreadFactory())
-      val config = new AsyncHttpClientConfig.Builder()
+      val config = new DefaultAsyncHttpClientConfig.Builder()
         .setCompressionEnforced(true)
-        .setAllowPoolingConnections(true)
         .setConnectTimeout(500)
         .setRequestTimeout(3000)
-        .setExecutorService(pool)
         .build()
-      implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config, pool.just)
+      implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
       val url = "http://www.google.com"
       val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++ ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
@@ -112,14 +99,12 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
     {
       implicit val sse = Executors.newScheduledThreadPool(2)
       val pool = Executors.newCachedThreadPool(DefaultThreadFactory())
-      val config = new AsyncHttpClientConfig.Builder()
+      val config = new DefaultAsyncHttpClientConfig.Builder()
         .setCompressionEnforced(true)
-        .setAllowPoolingConnections(true)
         .setConnectTimeout(500)
         .setRequestTimeout(3000)
-        .setExecutorService(pool)
         .build()
-      implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config, pool.just)
+      implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
       val url = "http://www.google.com"
       val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++ ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 

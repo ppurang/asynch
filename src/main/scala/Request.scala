@@ -48,7 +48,7 @@ case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector
   override def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout, adapter: RequestModifier)(implicit executor: NonBlockingExecutor, schExecutor: ScheduledExecutorService) = {
     debug(s"executing blocking call with $timeout. Default is 2000 ms.")
     val task = ~>>(timeout, adapter)(executor).timed(timeout + 100) // we pass timeout along and enforce it on our own too by giving it about 100 ms!
-    task.attemptRun.fold (
+    task.unsafePerformSyncAttempt.fold (
         t => f((t, this).left),
         r => f(r.right)
     )

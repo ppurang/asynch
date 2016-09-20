@@ -30,11 +30,11 @@ object Test {
   }
 
   def nonblocking(url: String, timeout: Long) = println(" ------------  " + {
-    (GET > url).~>>(timeout).attemptRun
+    (GET > url).~>>(timeout).unsafePerformSyncAttempt
   })
 
   def nonblocking2(url: String, timeout: Long) = println(" ------------  " + {
-    (GET > url).~>>(timeout).timed(1000).attemptRun
+    (GET > url).~>>(timeout).timed(1000).unsafePerformSyncAttempt
   })
 
   def block(url: String) = println((GET > url) ~> {
