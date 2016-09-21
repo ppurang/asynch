@@ -55,13 +55,11 @@ For an example of a **custom configured executor** look at [src/test/scala/Custo
 
 
 ```scala
-implicit val sse = Executors.newScheduledThreadPool(2)
+implicit val sse = java.util.concurrent.Executors.newScheduledThreadPool(2)
 val config = new DefaultAsyncHttpClientConfig.Builder()
   .setCompressionEnforced(true)
-  .setAllowPoolingConnections(true)
   .setConnectTimeout(500)
   .setRequestTimeout(3000)
-  .setExecutorService(pool)
   .build()
 implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
 ```
