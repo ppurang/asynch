@@ -6,7 +6,7 @@ Sbt library dependency
 
 From
 
-    resolvers += "ppurang bintray" at " http://dl.bintray.com/ppurang/maven"
+    resolvers += "ppurang bintray" at "http://dl.bintray.com/ppurang/maven"
 
 ## Quick
 
