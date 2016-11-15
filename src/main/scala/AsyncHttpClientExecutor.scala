@@ -1,17 +1,10 @@
-package org.purang.net
-package http.ning
+package org.purang.net.http.ning
 
-//import org.asynchttpclient._
 import java.nio.charset.StandardCharsets
-import java.util
-
 import org.purang.net.http._
 import org.asynchttpclient.{Request => ARequest, Response => AResponse, _}
-import java.util.{List => JUL}
-import java.util.concurrent.{ExecutorService, ThreadFactory, TimeUnit}
+import java.util.concurrent.{ThreadFactory, TimeUnit}
 import java.util.concurrent.atomic.AtomicInteger
-
-import scalaz._
 
 object `package` {
   implicit val defaultNonBlockingExecutor = DefaultAsyncHttpClientNonBlockingExecutor()
@@ -66,21 +59,21 @@ abstract class AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
       }
       val response: AResponse = client.executeRequest[AResponse](
         builder.build(),
-        (new Handler(): AsyncHandler[AResponse])
+        new Handler(): AsyncHandler[AResponse]
       ).get(timeout, TimeUnit.MILLISECONDS)
 
 
-      import scala.collection.JavaConversions._
+      import scala.collection.JavaConverters._
       import org.purang.net.http._
 
       implicit val mapEntryToTuple : java.util.Map.Entry[String,String] => (String, String) = x => x.getKey -> x.getValue
-      val headers = response.getHeaders.groupBy(_.getKey).foldLeft(Vector[Header]()) {
-        case (headers, (key, iterable)) =>
-          val map: util.Collection[String] = iterable.map(_.getValue)
-          headers ++ (key `:` collectionAsScalaIterable(map))
+      val headers = response.getHeaders.asScala.groupBy(_.getKey).foldLeft(Vector[Header]()) {
+        case (hdrs, (key, iterable)) =>
+          hdrs ++ (key `:` iterable.map(_.getValue))
       }
+
       val responseBody: String = response.getResponseBody(StandardCharsets.UTF_8)
-      val code: Int = response.getStatusCode()
+      val code: Int = response.getStatusCode
       debug {
         f"'${Thread.currentThread().getName}'-'${Thread.currentThread().getId}' req: $req  %n resp: %n code: $code %n headers: $headers %n body: $responseBody"
       }
