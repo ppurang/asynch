@@ -9,7 +9,7 @@ scalaVersion := "2.11.8"
 crossScalaVersions := Seq("2.11.8", "2.12.0")
 
 libraryDependencies ++= Seq(
-  "org.asynchttpclient" % "async-http-client" % "2.1.0-alpha4" withSources(),
+  "org.asynchttpclient" % "async-http-client" % "2.1.0-alpha17" withSources(),
   "org.scalaz" %% "scalaz-core" % "7.2.8"  withSources(),
   "org.scalaz" %% "scalaz-concurrent" % "7.2.8"  withSources(),
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",

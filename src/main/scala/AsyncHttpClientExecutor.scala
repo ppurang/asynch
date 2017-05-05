@@ -1,10 +1,13 @@
 package org.purang.net.http.ning
 
 import java.nio.charset.StandardCharsets
+
 import org.purang.net.http._
 import org.asynchttpclient.{Request => ARequest, Response => AResponse, _}
 import java.util.concurrent.{ThreadFactory, TimeUnit}
 import java.util.concurrent.atomic.AtomicInteger
+
+import io.netty.handler.codec.http.HttpHeaders
 
 object `package` {
   implicit val defaultNonBlockingExecutor = DefaultAsyncHttpClientNonBlockingExecutor()
@@ -84,26 +87,26 @@ abstract class AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
 
 }
 
-class Handler extends AsyncHandler[AResponse]  {
+class Handler extends AsyncHandler[AResponse] {
   val builder =
-          new AResponse.ResponseBuilder()
+    new AResponse.ResponseBuilder()
 
   def onBodyPartReceived(content: HttpResponseBodyPart): AsyncHandler.State = {
-      builder.accumulate(content)
+    builder.accumulate(content)
     AsyncHandler.State.CONTINUE
   }
 
   def onStatusReceived(status: HttpResponseStatus): AsyncHandler.State = {
-      builder.accumulate(status)
+    builder.accumulate(status)
     AsyncHandler.State.CONTINUE
   }
 
-  def onHeadersReceived( headers: HttpResponseHeaders) : AsyncHandler.State = {
-      builder.accumulate(headers)
+  def onHeadersReceived(headers: HttpHeaders): AsyncHandler.State = {
+    builder.accumulate(headers)
     AsyncHandler.State.CONTINUE
   }
 
-  def onCompleted(): AResponse  = {
+  def onCompleted(): AResponse = {
     builder.build()
   }
 
@@ -121,7 +124,7 @@ case class DefaultAsyncHttpClientNonBlockingExecutor( config : AsyncHttpClientCo
 })
   extends ConfiguredAsyncHttpClientExecutor {
 
-  def close() = {
+  def close() : Unit = {
     this.client.close()
   }
 }

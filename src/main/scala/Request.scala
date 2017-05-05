@@ -41,11 +41,11 @@ object Request {
 
 case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector(), body: Body = None) extends Request {
 
-  override def >> (additionalHeaders: Headers) = copy(headers = headers ++ additionalHeaders)
+  override def >> (additionalHeaders: Headers): RequestImpl = copy(headers = headers ++ additionalHeaders)
 
-  override def >>> (newBody: String) = copy(body = Option(newBody))
+  override def >>> (newBody: String): RequestImpl = copy(body = Option(newBody))
 
-  override def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout, adapter: RequestModifier)(implicit executor: NonBlockingExecutor, schExecutor: ScheduledExecutorService) = {
+  override def ~>[T](f: ExecutedRequestHandler[T], timeout: Timeout, adapter: RequestModifier)(implicit executor: NonBlockingExecutor, schExecutor: ScheduledExecutorService): T = {
     debug(s"executing blocking call with $timeout. Default is 2000 ms.")
     val task = ~>>(timeout, adapter)(executor).timed(timeout + 100) // we pass timeout along and enforce it on our own too by giving it about 100 ms!
     task.unsafePerformSyncAttempt.fold (
@@ -54,10 +54,10 @@ case class RequestImpl(method: Method = GET, url: Url, headers: Headers = Vector
     )
   }
 
-  override def ~>>(timeout: Timeout, adapter: RequestModifier)(implicit executor: NonBlockingExecutor) =  executor(timeout)(adapter.modify(this))
+  override def ~>>(timeout: Timeout, adapter: RequestModifier)(implicit executor: NonBlockingExecutor): NonBlockingExecutedRequest =  executor(timeout)(adapter.modify(this))
 
 
-  override def toString = body match {
+  override def toString: String = body match {
     case Some(x) =>"""%s%n%n%s""".format(incompleteToString, x)
     case _ => incompleteToString
   }

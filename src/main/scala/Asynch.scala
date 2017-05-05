@@ -20,7 +20,7 @@ object `package` {
   type Body = Option[String]
 
   implicit class Timeout(val timeout: Long) extends AnyVal {
-    def +(delta: Long) = timeout + delta
+    def +(delta: Long): Long = timeout + delta
   }
   object Timeout {
     implicit def unapply(timeout: Timeout): Long = timeout.timeout
@@ -59,12 +59,12 @@ object `package` {
   }
 
   private object NoopRequestModifier extends RequestModifier {
-    override def modify = req => req
+    override def modify: (Request) => Request = req => req
   }
 
   implicit val noop: RequestModifier = NoopRequestModifier
 
-  implicit def responseToString(response: AResponse) = response match {
+  implicit def responseToString(response: AResponse): String = response match {
     case (_,_,Some(x),_) =>"""%s%n%n%s""".format(incompleteResponseToString(response), x)
     case _ => incompleteResponseToString(response)
   }
@@ -98,9 +98,9 @@ object `package` {
       case ex : Throwable => (ex, req).left
     }
 
-  implicit def responseSuccessFunctionToTuple[T](f: (Status, Headers, Body, Request) => T ) = f.tupled
+  implicit def responseSuccessFunctionToTuple[T](f: (Status, Headers, Body, Request) => T ): ((Status, Headers, Body, Request)) => T = f.tupled
 
-  implicit def responseFailureFunctionToTuple[T](f: (Throwable, Request) => T ) = f.tupled
+  implicit def responseFailureFunctionToTuple[T](f: (Throwable, Request) => T ): ((Throwable, Request)) => T = f.tupled
 }
 
 
