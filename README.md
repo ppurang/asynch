@@ -1,6 +1,6 @@
 ## Prologue
 
-Sbt library dependency
+Sbt library dependency  (for latest versions check https://bintray.com/ppurang/maven/asynch)
 
     //for netty 4.0.x
     libraryDependencies += "org.purang.net" %% "asynch" %"0.6.1" withSources()
