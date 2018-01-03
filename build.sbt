@@ -4,9 +4,9 @@ version := "0.7.2"
 
 organization := "org.purang.net"
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.12.4"
 
-crossScalaVersions := Seq("2.11.8", "2.12.1")
+crossScalaVersions := Seq("2.11.8", "2.12.4")
 
 libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.1.0-alpha26" withSources(),
