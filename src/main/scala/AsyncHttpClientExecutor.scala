@@ -3,37 +3,13 @@ package org.purang.net.http.ning
 import java.nio.charset.StandardCharsets
 
 import org.purang.net.http._
-import org.asynchttpclient.{Request => ARequest, Response => AResponse, _}
-import java.util.concurrent.{ThreadFactory, TimeUnit}
-import java.util.concurrent.atomic.AtomicInteger
+import org.asynchttpclient.{Request => _, Response => AResponse, _}
+import java.util.concurrent.TimeUnit
 
 import io.netty.handler.codec.http.HttpHeaders
 
 object `package` {
   implicit val defaultNonBlockingExecutor = DefaultAsyncHttpClientNonBlockingExecutor()
-}
-
-case class DefaultThreadFactory(namePrefix: String = "org.purang.net.http.ning.pool") extends ThreadFactory {
-
-  val threadNumber = new AtomicInteger(1)
-
-  //based on java.util.concurrent.Executors.DefaultThreadFactory
-  val group: ThreadGroup = {
-    val s = System.getSecurityManager
-    if (s != null) s.getThreadGroup else Thread.currentThread().getThreadGroup
-  }
-
-  def newThread(r: Runnable): Thread = {
-    val t = new Thread(group, r, s"$namePrefix-${threadNumber.getAndIncrement}")
-    debug{
-      s"new thread ${t.getName}"
-    }
-    if (!t.isDaemon)
-      t.setDaemon(true)
-    if (t.getPriority != Thread.NORM_PRIORITY)
-      t.setPriority(Thread.NORM_PRIORITY)
-    t
-  }
 }
 
 abstract class AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {

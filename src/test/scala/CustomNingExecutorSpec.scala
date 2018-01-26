@@ -2,11 +2,14 @@ package org.purang.net
 
 package http
 
-import java.util.concurrent.Executors
+import java.util.concurrent.{Executors, ScheduledExecutorService}
+
 import org.asynchttpclient._
 import org.scalatest.{FlatSpec, Matchers}
 import org.purang.net.http.ning.{defaultNonBlockingExecutor => _, _}
-import scalaz._, Scalaz._
+
+import scalaz._
+import Scalaz._
 
 class CustomNingExecutorSpec extends FlatSpec with Matchers {
 
@@ -97,12 +100,12 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
       sse.shutdownNow()
     }
     {
-      implicit val sse = Executors.newScheduledThreadPool(2)
-      val pool = Executors.newCachedThreadPool(DefaultThreadFactory())
+      implicit val sse: ScheduledExecutorService = Executors.newScheduledThreadPool(2, DefaultThreadFactory("CustomNingExecutorSpec.TF.scheduler"))
       val config = new DefaultAsyncHttpClientConfig.Builder()
         .setCompressionEnforced(true)
         .setConnectTimeout(500)
         .setRequestTimeout(3000)
+        .setThreadFactory(DefaultThreadFactory("CustomNingExecutorSpec.TF.client"))
         .build()
       implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
       val url = "http://www.google.com"
