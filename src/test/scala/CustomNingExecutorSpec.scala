@@ -29,7 +29,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
         t._1.printStackTrace; -1
       },
       (status: Status, headers: Headers, body: Body, req: Request) => status
-    )) should be(302)
+    )) should be(200)
   }
 
   it should "allow configuring and using multiple async http client executor" in {
@@ -51,7 +51,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
           -1
         },
         (status: Status, headers: Headers, body: Body, req: Request) => status
-      )) should be(302)
+      )) should be(200)
 
     }
     {
@@ -71,7 +71,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
           -1
         },
         (status: Status, headers: Headers, body: Body, req: Request) => status
-      )) should be(302)
+      )) should be(200)
     }
   }
 
@@ -94,7 +94,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
           -1
         },
         (status: Status, headers: Headers, body: Body, req: Request) => status
-      )) should be(302)
+      )) should be(200)
 
       newExecutor.close()
       sse.shutdownNow()
@@ -117,7 +117,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
           -1
         },
         (status: Status, headers: Headers, body: Body, req: Request) => status
-      )) should be(302)
+      )) should be(200)
     }
   }
 

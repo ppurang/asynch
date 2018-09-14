@@ -90,34 +90,15 @@ class ExecutorSpec extends FeatureSpec with BeforeAndAfterAll with GivenWhenThen
               ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
 
       When("it is executed")
-      Then("status is not -1")
+      Then("status is 200")
       (url >> headers).~>((x: ExecutedRequest) => x.fold(
         t => {t._1.printStackTrace ;-1},
         (status: Status, headers: Headers, body: Body, req: Request) => status
-      )) should be(302)
+      )) should be(200)
 
     }
 
-    scenario("executes a more complicated request") {
-      Given("a request")
-      val url = "http://www.google.com"
-      val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
-              ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
-
-      When("it is executed")
-      (HEAD > url >> headers) ~> ((x: ExecutedRequest) => { x.fold(
-        (t:Throwable, _:Request) => fail(t),
-        _ match  {
-           case (302, rheaders, _, _) =>
-             (GET > rheaders.filter(_.name.equals("Location"))(0).value >> headers) ~>
-                     { _.fold(t => fail(t._1),  {case (status,_,_,_) => status should be(200)})}
-                     //printResponse
-           case y => fail(y)
-         })
-      })
-    }
-
-   scenario("executes a request after modifying it and returns a value") {
+    scenario("executes a request after modifying it and returns a value") {
       Given("a request")
       val url = "http://www.google.com"
 
