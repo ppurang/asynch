@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/ppurang/asynch.svg?branch=master)](https://travis-ci.com/ppurang/asynch)
+
 ## Prologue
 
 Sbt library dependency  (for latest versions check https://bintray.com/ppurang/maven/asynch)
