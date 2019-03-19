@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.8.1" withSources(),
   "org.scalaz" %% "scalaz-core" % "7.2.27"  withSources(),
   "org.scalaz" %% "scalaz-concurrent" % "7.2.27"  withSources(),
-  "org.scalatest" %% "scalatest" % "3.0.6" % "test",
+  "org.scalatest" %% "scalatest" % "3.0.7" % "test",
   "ch.qos.logback" % "logback-classic" % "1.2.3" % "test"
   )
 
