@@ -6,7 +6,6 @@ import java.util.concurrent.ScheduledExecutorService
 
 import concurrent._
 import concurrent.duration._
-import FiniteDuration._
 import ExecutionContext.Implicits.global
 
 object Test {
@@ -14,21 +13,22 @@ object Test {
 
   implicit val sse: ScheduledExecutorService = java.util.concurrent.Executors.newScheduledThreadPool(5)
 
-  def eventually[A](i: Int)(a: => A): Future[A] = {
+  def eventually[A](i: Long)(a: => A): Future[A] = {
     Await.ready(Future {
       blocking(Thread.sleep(i)); a
-    }, i + 100 milliseconds)
+    }, (i + 100).milliseconds)
   }
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     System.setProperty("asynch.debug", "true")
     block(args(0))
     //nonblocking2(args(0), 1000)
 
-    eventually(2000) {
+    eventually(2000l) {
       sse.shutdownNow()
       defaultNonBlockingExecutor.close()
     }
+    ()
   }
 
   def nonblocking(url: String, timeout: Long): Unit = println(" ------------  " + {
@@ -36,13 +36,13 @@ object Test {
   })
 
   def nonblocking2(url: String, timeout: Long): Unit = println(" ------------  " + {
-    (GET > url).~>>(timeout).timed(1000).unsafePerformSyncAttempt
+    (GET > url).~>>(timeout).timed(1000l).unsafePerformSyncAttempt
   })
 
   def block(url: String): Unit = println((GET > url) ~> {
     _.fold(
     t => "error: " + t._1.getMessage, {
-      case (200, _, Some(body), _) => "ok" //"ok: [" + body + "]"
+      case (200, _, _, _) => "ok" //"ok: [" + body + "]"
       case (z, _, _, _) => "unexpected status: " + z
     }
     )

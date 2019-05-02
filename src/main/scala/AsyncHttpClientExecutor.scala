@@ -16,12 +16,12 @@ abstract class AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
   val client: AsyncHttpClient
 
   import scalaz.concurrent.Task
-  def apply(timeout: Timeout) = (req: Request) => {
+  def apply(timeout: Timeout): Request => Task[(Status, Vector[Header], Option[String], Request)] = (req: Request) => {
     debug {
       s"Thread ${Thread.currentThread().getName}-${Thread.currentThread().getId} asking for a task to be run $req"
     }
     Task.apply({
-      var builder = new RequestBuilder(req.method).setUrl(req.url.url)
+      var builder: RequestBuilder = new RequestBuilder(req.method).setUrl(req.url.url)
       for {
         header <- req.headers
         value <- header.values
@@ -45,8 +45,7 @@ abstract class AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
       import scala.collection.JavaConverters._
       import org.purang.net.http._
 
-      implicit val mapEntryToTuple : java.util.Map.Entry[String,String] => (String, String) = x => x.getKey -> x.getValue
-      val headers = response.getHeaders.asScala.groupBy(_.getKey).foldLeft(Vector[Header]()) {
+      val headers: Vector[Header] = response.getHeaders.asScala.groupBy(_.getKey).foldLeft(Vector[Header]()) {
         case (hdrs, (key, iterable)) =>
           hdrs ++ (key `:` iterable.map(_.getValue))
       }
@@ -86,7 +85,7 @@ class Handler extends AsyncHandler[AResponse] {
     builder.build()
   }
 
-  def onThrowable(t: Throwable) {
+  def onThrowable(t: Throwable) : Unit = {
     throw t
   }
 }
@@ -96,6 +95,7 @@ case class DefaultAsyncHttpClientNonBlockingExecutor( config : AsyncHttpClientCo
     .setCompressionEnforced(true)
     .setConnectTimeout(500)
     .setRequestTimeout(3000)
+    .setCookieStore(null)
     .build()
 })
   extends ConfiguredAsyncHttpClientExecutor {

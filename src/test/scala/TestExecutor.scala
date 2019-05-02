@@ -1,6 +1,6 @@
 package org.purang.net
 package http
-import scalaz._, Scalaz._
+import scalaz._
 import concurrent.Task
 
 case class TestExecutor(expected : Map[Request, ExecutedRequest]) extends NonBlockingExecutor {
@@ -15,9 +15,9 @@ case class TestExecutor(expected : Map[Request, ExecutedRequest]) extends NonBlo
   })
 }
 
-case class MisbehavingExecutor(time: Int)  extends NonBlockingExecutor {
+case class MisbehavingExecutor(time: Long)  extends NonBlockingExecutor {
   assert(time > 1000, s"well you are an optimist! you provided $time up it a few seconds")
-  def apply(t: Timeout) = req => Task({
+  def apply(t: Timeout) = _ => Task({
       Thread.sleep(time)
       throw new Exception(s"Seriously! You waited $time ms for a response.")
   })

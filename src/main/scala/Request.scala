@@ -30,8 +30,8 @@ object Request {
     RequestImpl(tuple._1, tuple._2, tuple._3)
   }
 
-  implicit def apply(tuple: (Method, Url)): Request = {
-    RequestImpl(tuple._1, tuple._2)
+  implicit def apply: (Method, Url) => Request = {
+    RequestImpl(_, _)
   }
 
   implicit def apply(aurl: Url) : Request = {

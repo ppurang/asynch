@@ -6,7 +6,7 @@ package http
  * The following makes it impossible to define your own HTTP Methods which might be a good thing
  */
 sealed trait Method {
-  def >(url: String): Request = Request(this, url)
+  def >(url: String): Request = Request.apply(this, url)
 
   override def toString: String
 }

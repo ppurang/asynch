@@ -2,9 +2,10 @@ package org.purang.net
 
 package http
 
-import org.scalatest.{Matchers, GivenWhenThen, FeatureSpec}
+import org.scalatest.{FeatureSpec, GivenWhenThen, Matchers}
 import scalaz._
 import Scalaz._
+
 import collection.immutable.Vector
 import java.util.concurrent.TimeoutException
 
@@ -15,15 +16,13 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
   val contentType = ContentType(ApplicationJson)
 
   val bodyOnly: (Status, Headers, Body, Request) => String =
-    (status: Status, headers: Headers, body: Body, req: Request) => body.getOrElse("")
+    (_: Status, _: Headers, body: Body, _: Request) => body.getOrElse("")
 
   feature("non blocking executor") {
     scenario("allows timeout") {
       import ning._
       Given("a request")
       val url = "http://www.google.com"
-      val contentType = ContentType(ApplicationJson)
-      import scalaz.concurrent.Strategy._
 
       When("it is executed with 0 ms timeout")
       val timeout = (HEAD > url).~>>(0)
@@ -35,14 +34,13 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
     scenario("executes requests using tasks where all tasks succeed") {
       Given("three requests")
       type Collectors = Int
-      type Time = Long
       case class Apples(n: Int)
       object Apples_ {
         def fromJson(str: String): Apples = Apples(str.toInt)
       }
       case class JuiceCartons(n: Int)
       object JuiceCartons_ {
-        def fromJson(str: String): JuiceCartons = JuiceCartons(5)
+        def fromJson(): JuiceCartons = JuiceCartons(5)
       }
 
       case class FruitGatherers(n: Collectors) {
@@ -53,7 +51,6 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
         def juiceCartons(apples: Apples) = JuiceCartons(apples.n / n)
       }
 
-
       val headers: Vector[Header] = Vector[Header]()
       implicit val testExecutor = TestExecutor(
         Map(
@@ -63,17 +60,17 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
         )
       )
 
-      val f = (gatherers: FruitGatherers) => (POST > "http://localhost:8080/apple/garden" >>> gatherers.n.toString).~>>().map({
+      val f: FruitGatherers => Task[Apples] = (gatherers: FruitGatherers) => (POST > "http://localhost:8080/apple/garden" >>> gatherers.n.toString).~>>().map({
         case (200, _, Some(body), _) => Apples_.fromJson(body)
         case _ => Apples(0)
       })
 
-      val g= (apples:Apples) => (POST > "http://localhost:8080/apple/press" >>> apples.n.toString).~>>().map({
-        case (200, _, Some(body), _) => JuiceCartons_.fromJson(body)
+      val g: Apples => Task[JuiceCartons] = (apples:Apples) => (POST > "http://localhost:8080/apple/press" >>> apples.n.toString).~>>().map({
+        case (200, _, _, _) => JuiceCartons_.fromJson()
         case _ => JuiceCartons(0)
       })
 
-      val h = (juiceCartons: JuiceCartons) => (POST > "http://localhost:8080/person/dude/juice" >>> juiceCartons.n.toString).~>>().map({
+      val h: JuiceCartons => Task[Long] = (juiceCartons: JuiceCartons) => (POST > "http://localhost:8080/person/dude/juice" >>> juiceCartons.n.toString).~>>().map({
         case (200, _, Some(body), _) => body.toLong
         case _ => 10
       })
@@ -92,14 +89,13 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
     scenario("executes requests using tasks where one fails") {
       Given("three requests")
       type Collectors = Int
-      type Time = Long
       case class Apples(n: Int)
       object Apples_ {
         def fromJson(str: String): Apples = Apples(str.toInt)
       }
       case class JuiceCartons(n: Int)
       object JuiceCartons_ {
-        def fromJson(str: String): JuiceCartons = JuiceCartons(5)
+        def fromJson(): JuiceCartons = JuiceCartons(5)
       }
 
       case class FruitGatherers(n: Collectors) {
@@ -120,17 +116,17 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
         )
       )
 
-      val f = (gatherers: FruitGatherers) => (POST > "http://localhost:8080/apple/garden" >>> gatherers.n.toString).~>>().map({
+      val f: FruitGatherers => Task[Apples] = (gatherers: FruitGatherers) => (POST > "http://localhost:8080/apple/garden" >>> gatherers.n.toString).~>>().map({
         case (200, _, Some(body), _) => Apples_.fromJson(body)
         case _ => Apples(0)
       })
 
-      val g= (apples:Apples) => (POST > "http://localhost:8080/apple/press" >>> apples.n.toString).~>>().map({
-        case (200, _, Some(body), _) => JuiceCartons_.fromJson(body)
+      val g: Apples => Task[JuiceCartons] = (apples:Apples) => (POST > "http://localhost:8080/apple/press" >>> apples.n.toString).~>>().map({
+        case (200, _, _, _) => JuiceCartons_.fromJson()
         case _ => JuiceCartons(0)
       })
 
-      val h = (juiceCartons: JuiceCartons) => (POST > "http://localhost:8080/person/dude/juice" >>> juiceCartons.n.toString).~>>().map({
+      val h: JuiceCartons => Task[Long] = (juiceCartons: JuiceCartons) => (POST > "http://localhost:8080/person/dude/juice" >>> juiceCartons.n.toString).~>>().map({
         case (200, _, Some(body), _) => body.toLong
         case _ => 10
       })
@@ -144,7 +140,7 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
 
       Then("0 ms are returned")
       task.unsafePerformSyncAttempt.fold(
-        left => -1.left,
+        _ => -1.left,
         _.right
       ) should be(-\/(-1))
     }

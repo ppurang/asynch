@@ -7,9 +7,10 @@ import java.util.concurrent.{Executors, ScheduledExecutorService}
 import org.asynchttpclient._
 import org.scalatest.{FlatSpec, Matchers}
 import org.purang.net.http.ning.{defaultNonBlockingExecutor => _, _}
-
 import scalaz._
 import Scalaz._
+
+import scala.util.Random
 
 class CustomNingExecutorSpec extends FlatSpec with Matchers {
 
@@ -19,7 +20,9 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
       .setCompressionEnforced(true)
       .setConnectTimeout(500)
       .setRequestTimeout(3000)
+      .setCookieStore(null)
       .build()
+
     implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
     val url = "http://www.google.com"
     val headers = ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++ ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
@@ -28,7 +31,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
       t => {
         t._1.printStackTrace; -1
       },
-      (status: Status, headers: Headers, body: Body, req: Request) => status
+      {case (status: Status, _, _, _) => status}
     )) should be(200)
   }
 
@@ -40,6 +43,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
         .setCompressionEnforced(true)
         .setConnectTimeout(500)
         .setRequestTimeout(3000)
+        .setCookieStore(null)
         .build()
       implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
       val url = "http://www.google.com"
@@ -50,7 +54,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
           t._1.printStackTrace;
           -1
         },
-        (status: Status, headers: Headers, body: Body, req: Request) => status
+        {case (status: Status, _, _, _) => status}
       )) should be(200)
 
     }
@@ -60,6 +64,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
         .setCompressionEnforced(true)
         .setConnectTimeout(500)
         .setRequestTimeout(3000)
+        .setCookieStore(null)
         .build()
       implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
       val url = "http://www.google.com"
@@ -70,7 +75,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
           t._1.printStackTrace;
           -1
         },
-        (status: Status, headers: Headers, body: Body, req: Request) => status
+        {case (status: Status, _, _, _) => status}
       )) should be(200)
     }
   }
@@ -83,6 +88,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
         .setCompressionEnforced(true)
         .setConnectTimeout(500)
         .setRequestTimeout(3000)
+        .setCookieStore(null)
         .build()
       implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
       val url = "http://www.google.com"
@@ -93,7 +99,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
           t._1.printStackTrace;
           -1
         },
-        (status: Status, headers: Headers, body: Body, req: Request) => status
+        {case (status: Status, _, _, _) => status}
       )) should be(200)
 
       newExecutor.close()
@@ -106,6 +112,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
         .setConnectTimeout(500)
         .setRequestTimeout(3000)
         .setThreadFactory(DefaultThreadFactory("CustomNingExecutorSpec.TF.client"))
+        .setCookieStore(null)
         .build()
       implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
       val url = "http://www.google.com"
@@ -116,9 +123,50 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
           t._1.printStackTrace;
           -1
         },
-        (status: Status, headers: Headers, body: Body, req: Request) => status
+        {case (status: Status, _, _, _) => status}
       )) should be(200)
     }
+  }
+
+  it should "execute requests using tasks with cookies involved" in {
+
+    val config: DefaultAsyncHttpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
+      .setCompressionEnforced(true)
+      .setConnectTimeout(500)
+      .setRequestTimeout(2000)
+      .setCookieStore(null)
+      .build()
+    implicit val newExecutor: DefaultAsyncHttpClientNonBlockingExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
+
+    import com.sun.net.httpserver._
+    import java.net._
+
+    val port: Int = Random.nextInt(10000) + 8000
+
+    val server: HttpServer = HttpServer.create(new InetSocketAddress(port), 0)
+
+    server.createContext("/", new HttpHandler {
+      def handle(exchange: HttpExchange): Unit = {
+        val headers: com.sun.net.httpserver.Headers = exchange.getResponseHeaders
+        headers.add("Set-Cookie", "id=a3fWa; Expires=Wed, 21 Oct 3000 07:28:00 GMT; HttpOnly")
+        exchange.sendResponseHeaders(200, 0)
+        exchange.getResponseBody.write("hello".getBytes)
+        exchange.getResponseBody.close()
+      }
+    })
+
+    server.start()
+
+    val task: NonBlockingExecutedRequest = (GET > s"http://localhost:$port/").~>>(2000l)
+
+    val shouldNotFail : \/[Int, Header] = task.unsafePerformSyncAttempt.fold(
+      _ => -1.left,
+      r => r._2.find(_.name.toLowerCase == "set-cookie").toRightDisjunction(-1)
+    )
+
+    server.stop(3)
+
+    shouldNotFail should not be (-1.left)
   }
 
 }

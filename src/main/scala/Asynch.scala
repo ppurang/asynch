@@ -26,11 +26,6 @@ object `package` {
     implicit def unapply(timeout: Timeout): Long = timeout.timeout
   }
 
-
-  trait RequestModifier {
-    def modify: Request => Request
-  }
-
   type FailedRequest =  (Throwable, Request)
 
   type AResponse = (Status, Headers, Body, Request)
@@ -41,7 +36,6 @@ object `package` {
 
   type NonBlockingExecutedRequest = scalaz.concurrent.Task[AResponse]
 
-  trait NonBlockingExecutor extends (Timeout => Request => NonBlockingExecutedRequest)
 
   type ExecutedRequestHandler[T] = (ExecutedRequest => T)
 

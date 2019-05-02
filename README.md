@@ -30,6 +30,7 @@ val config = new DefaultAsyncHttpClientConfig.Builder()
   .setCompressionEnforced(true)
   .setConnectTimeout(500)
   .setRequestTimeout(3000)
+  .setCookieStore(null) //recommended as clients should be stateless
   .build()
 implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
 
@@ -66,6 +67,7 @@ val config = new DefaultAsyncHttpClientConfig.Builder()
   .setCompressionEnforced(true)
   .setConnectTimeout(500)
   .setRequestTimeout(3000)
+  .setCookieStore(null) //recommended as clients should be stateless
   .build()
 implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
 ```
