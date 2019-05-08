@@ -4,12 +4,14 @@ import java.nio.charset.StandardCharsets
 
 import org.purang.net.http._
 import org.asynchttpclient.{Request => _, Response => AResponse, _}
-import java.util.concurrent.TimeUnit
+import scala.concurrent.duration._
 
 import io.netty.handler.codec.http.HttpHeaders
+import scalaz.{\/, -\/, \/-}
 
 object `package` {
-  implicit val defaultNonBlockingExecutor = DefaultAsyncHttpClientNonBlockingExecutor()
+  implicit val defaultNonBlockingExecutor: DefaultAsyncHttpClientNonBlockingExecutor =
+    DefaultAsyncHttpClientNonBlockingExecutor()
 }
 
 abstract class AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
@@ -20,28 +22,28 @@ abstract class AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
     debug {
       s"Thread ${Thread.currentThread().getName}-${Thread.currentThread().getId} asking for a task to be run $req"
     }
-    Task.apply({
-      var builder: RequestBuilder = new RequestBuilder(req.method).setUrl(req.url.url)
+
+    Task.fork(Task.async[AResponse] { cb =>
+      val builder: RequestBuilder = new RequestBuilder(req.method).setUrl(req.url.url)
+
       for {
         header <- req.headers
         value <- header.values
-      } builder = builder.addHeader(header.name, value)
+      } builder.addHeader(header.name, value)
 
       for {
         content <- req.body
         str <- content
-      } builder = builder.setBody(str.getBytes("utf-8"))
+      } builder.setBody(str.getBytes("utf-8"))
 
       //
       debug{
-        s"blocking to execute $req on thread '${Thread.currentThread().getName}'-'${Thread.currentThread().getId}'"
+        s"executing $req on thread '${Thread.currentThread().getName}'-'${Thread.currentThread().getId}'"
       }
-      val response: AResponse = client.executeRequest[AResponse](
-        builder.build(),
-        new Handler(): AsyncHandler[AResponse]
-      ).get(timeout, TimeUnit.MILLISECONDS)
 
-
+      client.executeRequest(builder, new Handler(cb))
+      ()
+    }).timed(timeout.timeout.millis).map { response =>
       import scala.collection.JavaConverters._
       import org.purang.net.http._
 
@@ -57,14 +59,13 @@ abstract class AsyncHttpClientNonBlockingExecutor extends NonBlockingExecutor {
       }
 
       (code, headers, Option(responseBody), req)
-    })
+    }
   }
 
 }
 
-class Handler extends AsyncHandler[AResponse] {
-  val builder =
-    new AResponse.ResponseBuilder()
+class Handler(callback: (Throwable \/ AResponse) => Unit) extends AsyncHandler[Unit] {
+  val builder = new AResponse.ResponseBuilder()
 
   def onBodyPartReceived(content: HttpResponseBodyPart): AsyncHandler.State = {
     builder.accumulate(content)
@@ -81,13 +82,11 @@ class Handler extends AsyncHandler[AResponse] {
     AsyncHandler.State.CONTINUE
   }
 
-  def onCompleted(): AResponse = {
-    builder.build()
-  }
+  def onCompleted(): Unit =
+    callback(\/-(builder.build()))
 
-  def onThrowable(t: Throwable) : Unit = {
-    throw t
-  }
+  def onThrowable(t: Throwable): Unit =
+    callback(-\/(t))
 }
 
 case class DefaultAsyncHttpClientNonBlockingExecutor( config : AsyncHttpClientConfig = {
