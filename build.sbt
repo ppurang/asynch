@@ -1,6 +1,6 @@
 name := "asynch"
 
-version := "0.7.11"
+version := "0.7.12"
 
 organization := "org.purang.net"
 
