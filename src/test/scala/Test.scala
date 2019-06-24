@@ -24,7 +24,7 @@ object Test {
     block(args(0))
     //nonblocking2(args(0), 1000)
 
-    eventually(2000l) {
+    eventually(2000L) {
       sse.shutdownNow()
       defaultNonBlockingExecutor.close()
     }
@@ -36,7 +36,7 @@ object Test {
   })
 
   def nonblocking2(url: String, timeout: Long): Unit = println(" ------------  " + {
-    (GET > url).~>>(timeout).timed(1000l).unsafePerformSyncAttempt
+    (GET > url).~>>(timeout).timed(1000L).unsafePerformSyncAttempt
   })
 
   def block(url: String): Unit = println((GET > url) ~> {

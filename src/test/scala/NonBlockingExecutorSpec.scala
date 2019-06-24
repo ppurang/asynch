@@ -6,7 +6,7 @@ import org.scalatest.{FeatureSpec, GivenWhenThen, Matchers}
 import scalaz._
 import Scalaz._
 
-import collection.immutable.Vector
+import scala.collection.immutable.Vector
 import java.util.concurrent.TimeoutException
 
 import scalaz.concurrent.Task
