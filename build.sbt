@@ -1,6 +1,6 @@
 name := "asynch"
 
-version := "0.7.12"
+version := "0.7.13"
 
 organization := "org.purang.net"
 
@@ -61,6 +61,10 @@ scalacOptions ++= Seq(
 cancelable := true
 
 fork := true
+
+publishArtifact in packageDoc := false
+
+publishArtifact in packageSrc := false
 
 licenses += ("BSD", url("http://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
 
