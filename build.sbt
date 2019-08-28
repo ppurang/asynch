@@ -102,3 +102,6 @@ initialCommands in console :=
     |// newExecutor.close()
     |// sse.shutdownNow()
   """.stripMargin //to exit the console sse.close and defaultNonBlockingExecutor.close
+
+
+resolvers += Resolver.bintrayRepo("ppurang", "maven")
