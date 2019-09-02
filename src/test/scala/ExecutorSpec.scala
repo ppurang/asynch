@@ -2,9 +2,7 @@ package org.purang.net
 
 package http
 
-import org.scalatest._
-import scalaz._
-import Scalaz._
+import org.scalatest.{BeforeAndAfterAll, FeatureSpec, GivenWhenThen, Matchers}
 import java.util.concurrent.{ScheduledExecutorService, TimeoutException}
 
 
@@ -121,7 +119,7 @@ class ExecutorSpec extends FeatureSpec with BeforeAndAfterAll with GivenWhenThen
 
   feature("misbehaving executor") {
     implicit val exec = MisbehavingExecutor(60000) //make it very painful ;)
-    val timeout = 500l //oh we have an escape hatch .. hope it works
+    val timeout = 500L //oh we have an escape hatch .. hope it works
 
     scenario("executes a request") {
       Given("a request")

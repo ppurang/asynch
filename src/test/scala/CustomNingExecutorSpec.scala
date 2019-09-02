@@ -157,7 +157,7 @@ class CustomNingExecutorSpec extends FlatSpec with Matchers {
 
     server.start()
 
-    val task: NonBlockingExecutedRequest = (GET > s"http://localhost:$port/").~>>(2000l)
+    val task: NonBlockingExecutedRequest = (GET > s"http://localhost:$port/").~>>(2000L)
 
     val shouldNotFail : \/[Int, Header] = task.unsafePerformSyncAttempt.fold(
       _ => -1.left,
