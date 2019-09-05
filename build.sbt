@@ -1,5 +1,5 @@
 name := "asynch"
-version := "0.7.13"
+version := "0.7.14"
 organization := "org.purang.net"
 scalaVersion := "2.13.0"
 crossScalaVersions := Seq("2.11.12", "2.12.9", "2.13.0")
@@ -53,6 +53,7 @@ scalacOptions ++= (scalaBinaryVersion.value match {
 
 cancelable := true
 fork := true
+turbo := true
 publishArtifact in packageDoc := false
 publishArtifact in packageSrc := false
 licenses += ("BSD", url("http://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
