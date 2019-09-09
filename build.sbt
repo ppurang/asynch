@@ -56,7 +56,7 @@ fork := true
 turbo := true
 publishArtifact in packageDoc := false
 publishArtifact in packageSrc := false
-licenses += ("BSD", url("http://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
+licenses += ("BSD", url("https://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
 
 initialCommands in console :=
   """

@@ -12,7 +12,7 @@ Sbt library dependency  (for latest versions check https://bintray.com/ppurang/m
 
 From
 
-    resolvers += "ppurang bintray" at "http://dl.bintray.com/ppurang/maven"
+    resolvers += "ppurang bintray" at "https://dl.bintray.com/ppurang/maven"
 
 ## Quick
 
