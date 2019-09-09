@@ -26,6 +26,19 @@ scalacOptions ++= Seq(
   "-Xlint" // Lint everything.
 )
 
+val oldScalacOptions = Seq(
+  "-Xfatal-warnings", // Fail the compilation if there are any warnings.
+  "-Xfuture", // Turn on future language features.
+  "-Ywarn-dead-code", // Warn when dead code is identified.
+  "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures.
+  "-Ywarn-infer-any", // Warn when a type argument is inferred to be `Any`.
+  "-Ywarn-nullary-override", // Warn when non-nullary `def f()' overrides nullary `def f'.
+  "-Ywarn-nullary-unit", // Warn when nullary methods return Unit.
+  "-Ywarn-numeric-widen", // Warn when numerics are widened.
+  "-Ywarn-unused",
+  "-Ywarn-value-discard" // Warn when non-Unit expression results are unused.
+)
+
 scalacOptions ++= (scalaBinaryVersion.value match {
   case "2.13" =>
     Seq(
@@ -35,20 +48,13 @@ scalacOptions ++= (scalaBinaryVersion.value match {
       "-Wunused",
       "-Wvalue-discard" // Warn when non-Unit expression results are unused.
     )
-  case _ =>
-    Seq(
-      "-Xfatal-warnings", // Fail the compilation if there are any warnings.
-      "-Xfuture", // Turn on future language features.
-      "-Ywarn-dead-code", // Warn when dead code is identified.
+
+  case "2.12" =>
+    oldScalacOptions ++ Seq(
       "-Ywarn-extra-implicit", // Warn when more than one implicit parameter section is defined.
-      "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures.
-      "-Ywarn-infer-any", // Warn when a type argument is inferred to be `Any`.
-      "-Ywarn-nullary-override", // Warn when non-nullary `def f()' overrides nullary `def f'.
-      "-Ywarn-nullary-unit", // Warn when nullary methods return Unit.
-      "-Ywarn-numeric-widen", // Warn when numerics are widened.
-      "-Ywarn-unused",
-      "-Ywarn-value-discard" // Warn when non-Unit expression results are unused.
     )
+
+  case "2.11" => oldScalacOptions
 })
 
 cancelable := true
