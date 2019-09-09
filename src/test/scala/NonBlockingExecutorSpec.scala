@@ -47,10 +47,6 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
         def gather() = Apples(n * 10)
       }
 
-      case class ApplePress(n: Int) {
-        def juiceCartons(apples: Apples) = JuiceCartons(apples.n / n)
-      }
-
       val headers: Vector[Header] = Vector[Header]()
       implicit val testExecutor = TestExecutor(
         Map(
@@ -101,11 +97,6 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
       case class FruitGatherers(n: Collectors) {
         def gather() = Apples(n * 10)
       }
-
-      case class ApplePress(n: Int) {
-        def juiceCartons(apples: Apples) = JuiceCartons(apples.n / n)
-      }
-
 
       val headers: Vector[Header] = Vector[Header]()
       implicit val testExecutor = TestExecutor(
