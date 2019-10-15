@@ -1,14 +1,16 @@
 [![Build Status](https://travis-ci.com/ppurang/asynch.svg?branch=master)](https://travis-ci.com/ppurang/asynch)
 
+[![Download](https://api.bintray.com/packages/ppurang/maven/asynch/images/download.svg) ](https://bintray.com/ppurang/maven/asynch/_latestVersion)
+
 ## Prologue
 
 Sbt library dependency  (for latest versions check https://bintray.com/ppurang/maven/asynch)
 
     //for netty 4.0.x
-    libraryDependencies += "org.purang.net" %% "asynch" %"0.6.1" withSources()
+    libraryDependencies += "org.purang.net" %% "asynch" % "0.6.1" withSources()
 
-    //for netty 4.1.x and async-http-client:2.1.0-alpha4
-    libraryDependencies += "org.purang.net" %% "asynch" %"0.7.0" withSources()
+    //for netty 4.1.x and async-http-client:2.10.x
+    libraryDependencies += "org.purang.net" %% "asynch" % "0.7.15" withSources()
 
 From
 
