@@ -5,14 +5,15 @@ package http
 import java.util.concurrent.{Executors, ScheduledExecutorService}
 
 import org.asynchttpclient._
-import org.scalatest.{FlatSpec, Matchers}
 import org.purang.net.http.ning.{defaultNonBlockingExecutor => _, _}
 import scalaz._
 import Scalaz._
 
 import scala.util.Random
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class CustomNingExecutorSpec extends FlatSpec with Matchers {
+class CustomNingExecutorSpec extends AnyFlatSpec with Matchers {
 
   "ning package" should "allow configuring and using async http client executor" in {
     implicit val sse = Executors.newScheduledThreadPool(2)

@@ -2,8 +2,10 @@ package org.purang.net
 
 package http
 
-import org.scalatest.{BeforeAndAfterAll, FeatureSpec, GivenWhenThen, Matchers}
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
 import java.util.concurrent.{ScheduledExecutorService, TimeoutException}
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
 
 
 /**
@@ -11,7 +13,7 @@ import java.util.concurrent.{ScheduledExecutorService, TimeoutException}
  * @author Piyush Purang
  */
 
-class ExecutorSpec extends FeatureSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
+class ExecutorSpec extends AnyFeatureSpec with BeforeAndAfterAll with GivenWhenThen with Matchers {
   val contentType = ContentType(ApplicationJson)
 
   val bodyOnly: (Status, Headers, Body, Request) => String =

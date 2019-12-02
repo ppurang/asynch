@@ -2,7 +2,7 @@ package org.purang.net
 
 package http
 
-import org.scalatest.{FeatureSpec, GivenWhenThen, Matchers}
+import org.scalatest.GivenWhenThen
 import scalaz._
 import Scalaz._
 
@@ -10,8 +10,10 @@ import scala.collection.immutable.Vector
 import java.util.concurrent.TimeoutException
 
 import scalaz.concurrent.Task
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
 
-class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matchers {
+class NonBlockingExecutorSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
 
   val contentType = ContentType(ApplicationJson)
 

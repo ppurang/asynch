@@ -2,14 +2,16 @@ package org.purang.net
 
 package http
 
-import org.scalatest.{GivenWhenThen, FeatureSpec, Matchers}
+import org.scalatest.GivenWhenThen
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
  * 
  * @author Piyush Purang
  */
 
-class RequestSpec extends FeatureSpec with GivenWhenThen with Matchers {
+class RequestSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
 
   feature("implicit request conversions") {
 
