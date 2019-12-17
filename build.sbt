@@ -6,8 +6,8 @@ crossScalaVersions := Seq("2.11.12", "2.12.9", "2.13.1")
 
 libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.10.4" withSources(),
-  "org.scalaz" %% "scalaz-core" % "7.2.29" withSources(),
-  "org.scalaz" %% "scalaz-concurrent" % "7.2.29" withSources(),
+  "org.scalaz" %% "scalaz-core" % "7.2.30" withSources(),
+  "org.scalaz" %% "scalaz-concurrent" % "7.2.30" withSources(),
   "org.scalatest" %% "scalatest" % "3.0.8" % "test",
   "ch.qos.logback" % "logback-classic" % "1.2.3" % "test"
 )
