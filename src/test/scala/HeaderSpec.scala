@@ -2,18 +2,20 @@ package org.purang.net
 
 package http
 
-import org.scalatest.{GivenWhenThen, FeatureSpec, Matchers}
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.GivenWhenThen
+import org.scalatest.matchers.should.Matchers
 
 /**
  * 
  * @author Piyush Purang
  */
 
-class HeaderSpec extends FeatureSpec with GivenWhenThen with Matchers {
+class HeaderSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
 
-  feature("implicit header conversions") {
+  Feature("implicit header conversions") {
 
-    scenario("create simple header") {
+    Scenario("create simple header") {
       Given("the import org.purang.net.http._")
       import org.purang.net.http._
 
@@ -26,7 +28,7 @@ class HeaderSpec extends FeatureSpec with GivenWhenThen with Matchers {
       header.toString should be("""Accept: application/json""")
     }
 
-    scenario("create a header with mutiple values") {
+    Scenario("create a header with mutiple values") {
       Given("the import org.purang.net.http._")
       import org.purang.net.http._
 
@@ -40,7 +42,7 @@ class HeaderSpec extends FeatureSpec with GivenWhenThen with Matchers {
     }
 
 
-    scenario("create multiple headers") {
+    Scenario("create multiple headers") {
       Given("the import org.purang.net.http._")
       import org.purang.net.http._
 
@@ -51,7 +53,7 @@ class HeaderSpec extends FeatureSpec with GivenWhenThen with Matchers {
       headers should be(Vector(HeaderImpl("Accept",Vector("application/json", "text/html", "text/plain")), HeaderImpl("Cache-Control",Vector("no-cache")), HeaderImpl("Content-Type",Vector("text/plain"))))
     }
 
-    scenario("use predefined objects") {
+    Scenario("use predefined objects") {
       Given("the import org.purang.net.http._")
       import org.purang.net.http._
 

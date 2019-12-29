@@ -2,24 +2,26 @@ package org.purang.net
 
 package http
 
-import org.scalatest.{FeatureSpec, GivenWhenThen, Matchers}
+import org.scalatest.GivenWhenThen
 import scalaz._
 import Scalaz._
 
 import scala.collection.immutable.Vector
 import java.util.concurrent.TimeoutException
 
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
 import scalaz.concurrent.Task
 
-class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matchers {
+class NonBlockingExecutorSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
 
   val contentType = ContentType(ApplicationJson)
 
   val bodyOnly: (Status, Headers, Body, Request) => String =
     (_: Status, _: Headers, body: Body, _: Request) => body.getOrElse("")
 
-  feature("non blocking executor") {
-    scenario("allows timeout") {
+  Feature("non blocking executor") {
+    Scenario("allows timeout") {
       import ning._
       Given("a request")
       val url = "http://www.google.com"
@@ -31,7 +33,7 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
       timeout.unsafePerformSyncAttempt.fold(_.isInstanceOf[TimeoutException], _ => false) should be(true)
     }
 
-    scenario("executes requests using tasks where all tasks succeed") {
+    Scenario("executes requests using tasks where all tasks succeed") {
       Given("three requests")
       type Collectors = Int
       case class Apples(n: Int)
@@ -82,7 +84,7 @@ class NonBlockingExecutorSpec extends FeatureSpec with GivenWhenThen with Matche
       task.unsafePerformSyncAttempt should be(\/-(5000))
    }
 
-    scenario("executes requests using tasks where one fails") {
+    Scenario("executes requests using tasks where one fails") {
       Given("three requests")
       type Collectors = Int
       case class Apples(n: Int)

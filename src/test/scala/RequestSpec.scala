@@ -2,18 +2,20 @@ package org.purang.net
 
 package http
 
-import org.scalatest.{GivenWhenThen, FeatureSpec, Matchers}
+import org.scalatest.GivenWhenThen
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
  * 
  * @author Piyush Purang
  */
 
-class RequestSpec extends FeatureSpec with GivenWhenThen with Matchers {
+class RequestSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
 
-  feature("implicit request conversions") {
+  Feature("implicit request conversions") {
 
-    scenario("create a request from a string") {
+    Scenario("create a request from a string") {
       Given("a string")
       val url = GET > "http://www.google.com"
 
@@ -22,7 +24,7 @@ class RequestSpec extends FeatureSpec with GivenWhenThen with Matchers {
       req.body should be(None)
     }
 
-    scenario("create a request from a string and add headers and a body to it") {
+    Scenario("create a request from a string and add headers and a body to it") {
       Given("a url and some headers")
       val url =  "http://www.google.com"
       val headers =  ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++ ("Cache-Control" `:` "no-cache") ++ ("Content-Type" `:` "text/plain")
@@ -39,7 +41,7 @@ class RequestSpec extends FeatureSpec with GivenWhenThen with Matchers {
                                 |some text""".stripMargin)
     }
 
-    scenario("create a request from a tupple") {
+    Scenario("create a request from a tupple") {
       Given("a tuple of method  url and some headers")
       //the following type hint is needed!
       val tuple: Tuple3[Method, Url, Headers] = (GET, "http://www.google.com", Accept("application/json" ++ "text/html" ++ "text/plain"))
