@@ -36,3 +36,5 @@ tomcat*
 content*
 project/boot
 .lib
+.bloop/
+.metals/

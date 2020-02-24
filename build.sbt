@@ -1,7 +1,7 @@
 name := "asynch"
-version := "0.7.15"
+version := "0.7.16"
 organization := "org.purang.net"
-scalaVersion := "2.13.0"
+scalaVersion := "2.13.1"
 crossScalaVersions := Seq("2.11.12", "2.12.9", "2.13.1")
 
 libraryDependencies ++= Seq(
