@@ -10,7 +10,7 @@ Sbt library dependency  (for latest versions check https://bintray.com/ppurang/m
     libraryDependencies += "org.purang.net" %% "asynch" % "0.6.1" withSources()
 
     //for netty 4.1.x and async-http-client:2.10.x
-    libraryDependencies += "org.purang.net" %% "asynch" % "0.7.16" withSources()
+    libraryDependencies += "org.purang.net" %% "asynch" % "0.7.17" withSources()
 
 From
 
