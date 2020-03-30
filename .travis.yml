@@ -2,15 +2,17 @@ language: scala
 jdk:
 - openjdk8
 scala:
-- 2.12.10
+- 2.11.12
+- 2.12.11
+- 2.13.1
 cache:
   directories:
   - "$HOME/.sbt/1.0"
   - "$HOME/.sbt/boot"
-  - "HOME/.sbt/cache"
+  - "$HOME/.sbt/cache"
   - "$HOME/.sbt/launchers"
   - "$HOME/.ivy2/cache"
-  - "$HOME/.coursier"
+  - "$HOME/.cache/coursier"
 stages:
 - name: test
 notifications:
