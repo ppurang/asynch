@@ -11,4 +11,4 @@ addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % "0.2.13")
 
 addSbtPlugin("org.lyranthe.sbt" % "partial-unification" % "1.1.2")
 
-addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "1.4.0-RC1")
+addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "1.4.1")
