@@ -6,7 +6,7 @@ import concurrent.Task
 case class TestExecutor(expected : Map[Request, ExecutedRequest]) extends NonBlockingExecutor {
   def apply(t: Timeout) = req => Task({
     expected.get(req) match {
-      case Some(x) => x fold (
+      case Some(x) => x.fold(
           tr => {debug(s"$req => throwing exception");throw  tr._1},
           y => y
         )
