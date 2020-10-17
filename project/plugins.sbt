@@ -7,7 +7,7 @@ addSbtPlugin("org.foundweekends" % "sbt-bintray" % "0.5.6")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.2")
 
-addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % "0.2.13")
+addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % "0.2.14")
 
 addSbtPlugin("org.lyranthe.sbt" % "partial-unification" % "1.1.2")
 
