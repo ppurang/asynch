@@ -10,7 +10,7 @@ class HttpRequestSpec extends munit.FunSuite {
 
     assertEquals(
       r.show,
-      s"""GET https://www.google.com${Constants.CRLF}Accept: text/html${Constants.CRLF}Hmmmmmmmm"""
+      s"""GET https://www.google.com${Constants.CRLF}ACCEPT: text/html${Constants.CRLF}Hmmmmmmmm"""
     )
   }
 
@@ -19,7 +19,7 @@ class HttpRequestSpec extends munit.FunSuite {
 
     assertEquals(
       r.show,
-      s"""GET https://www.google.com${Constants.CRLF}Accept: text/html${Constants.CRLF}"""
+      s"""GET https://www.google.com${Constants.CRLF}ACCEPT: text/html${Constants.CRLF}"""
     )
   }
 
