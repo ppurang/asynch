@@ -1,10 +1,8 @@
 language: scala
 jdk:
-- openjdk8
+- openjdk15
 scala:
-- 2.11.12
-- 2.12.12
-- 2.13.3
+- 3.0.0-M3
 cache:
   directories:
   - "$HOME/.sbt/1.0"

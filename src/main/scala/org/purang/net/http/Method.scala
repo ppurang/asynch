@@ -2,20 +2,26 @@ package org.purang.net
 
 package http
 
+import cats.Show 
+
 /**
  * The following makes it impossible to define your own HTTP Methods which might be a good thing
  */
 sealed trait Method {
-  def >(url: String): Request = Request.apply(this, url)
+  def >(url: String): HttpRequest = HttpRequest.apply(this, Url(url))
 
   override def toString: String
 }
+
+object Method {
+  implicit val show: Show[Method] = Show.fromToString
+}
 //idempotent
 case object GET extends Method {
-    override def toString: String = "GET"
+  override def toString: String = "GET"
 }
 case object HEAD extends Method {
-    override def toString: String = "HEAD"
+  override def toString: String = "HEAD"
 }
 case object PUT extends Method {
   override def toString: String = "PUT"
@@ -38,4 +44,3 @@ case object POST extends Method {
 case object PATCH extends Method {
   override def toString: String = "PATCH"
 }
-
