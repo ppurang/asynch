@@ -8,6 +8,7 @@ import cats.syntax.show._
 import cats.syntax.foldable._
 
 import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.FiniteDuration
 
 final case class Headers(hs: NonEmptyChain[Header]) extends AnyVal
 
@@ -35,5 +36,7 @@ object Url {
   implicit val show: Show[Url] = Show.show(_.url)
 }
 
-final case class Timeout(length: Long, unit: TimeUnit)
+final case class Timeout(length: Long, unit: TimeUnit) {
+  lazy val finiteDuration = FiniteDuration(length, unit)
+}
 
