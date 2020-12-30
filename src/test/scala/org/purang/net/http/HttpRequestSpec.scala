@@ -6,6 +6,9 @@ import cats.effect.implicits._
 import cats.implicits._
 import cats.syntax.all._
 import cats.effect.syntax.all._
+import org.purang.net.http.catseffect.IORuntimeCreator
+import org.purang.net.http.catseffect.unsafe.CustomIORuntime
+import org.purang.util.concurrent.DefaultThreadFactory
 
 import java.util.concurrent.{TimeUnit, TimeoutException}
 
@@ -19,6 +22,7 @@ class HttpRequestSpec extends munit.FunSuite {
       .setCompressionEnforced(true)
       .setConnectTimeout(500)
       .setRequestTimeout(10000)
+      .setThreadFactory(new DefaultThreadFactory("HttpRequestSpec.client", true, 10, Thread.currentThread().getUncaughtExceptionHandler))
       .setCookieStore(null)
       .build()
 
@@ -109,6 +113,24 @@ class HttpRequestSpec extends munit.FunSuite {
 
     import cats.effect.unsafe.implicits.global
 
+    assertEquals(call.map(_.status).attempt.unsafeRunSync(), Right(HttpStatus(200)))
+  }
+
+  test("enable an asynchronous http request with custom IORuntime") {
+    val req = GET > "https://httpbin.org/get" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
+
+    implicit val runtime : cats.effect.unsafe.IORuntime =  CustomIORuntime.global
+    
+    val call : IO[HttpResponse] = for {
+      c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.async[IO](
+        underlyingClient
+      )
+      r <- c.execute(
+        req,
+        saneTimeout
+      )
+    } yield r
+    
     assertEquals(call.map(_.status).attempt.unsafeRunSync(), Right(HttpStatus(200)))
   }
   

@@ -16,6 +16,7 @@ import cats.syntax.flatMap._
 import cats.syntax.functor._
 
 import org.purang.net.http._
+import Constants.UTF8
 
 object AsyncHttpClient {
 
@@ -32,7 +33,7 @@ object AsyncHttpClient {
               NonEmptyChain.one("!!!!!!!should never happen!!!!!!")
             )))
       }
-    val responseBody: String = response.getResponseBody(java.nio.charset.StandardCharsets.UTF_8)
+    val responseBody: String = response.getResponseBody(UTF8)
     val code: Int = response.getStatusCode
     HttpResponse(HttpStatus(code), NonEmptyChain.fromSeq(headers.toSeq).map(Headers(_)), Option(Body(responseBody)))
   }
@@ -55,7 +56,7 @@ object AsyncHttpClient {
         }
         for {
           content <- req.body
-        } builder.setBody(content.b.getBytes("utf-8"))
+        } builder.setBody(content.b.getBytes(UTF8))
         val response =
           client.executeRequest(builder).get(timeout.length, timeout.unit) //oh no!!!!! well we are sync ;)))
         responseToResponse(response)
@@ -69,15 +70,7 @@ object AsyncHttpClient {
   ): F[HttpClient[F]] = A.delay {
     new HttpClient[F] {
       def execute(req: HttpRequest, timeout: Timeout): F[HttpResponse] = {
-        /*val acb : Deferred[F, Either[Throwable, AResponse]] => Either[Throwable, AResponse] => Unit = deferred => {
-          result => {
-            deferred.complete(result)
-            ()
-          }
-        }*/
         for {
-          //deferred <- C.deferred[Either[Throwable, AResponse]]
-          //handler = CustomHandler(acb(deferred))
           aresponse <- A.timeout(A.async_[AResponse]{ cb =>
             val builder: RequestBuilder = new RequestBuilder(req.method.toString).setUrl(req.url.url)
             for {
@@ -93,7 +86,9 @@ object AsyncHttpClient {
             }
             for {
               content <- req.body
-            } builder.setBody(content.b.getBytes("utf-8"))
+            } {
+              builder.setBody(content.b.getBytes(UTF8))
+            }
             client.executeRequest(builder, CustomHandler(cb))
           }, timeout.finiteDuration)
         } yield {
