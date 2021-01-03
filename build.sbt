@@ -8,7 +8,7 @@ ThisBuild / resolvers += Resolver.bintrayRepo("ppurang", "maven")
 
 ThisBuild / fork := true
 ThisBuild / logBuffered := false
-ThisBuild / parallelExecution in Test := false
+ThisBuild / parallelExecution in Test := true
 
 ThisBuild / publishArtifact in packageDoc := false
 ThisBuild / publishArtifact in packageSrc := true
@@ -32,7 +32,7 @@ ThisBuild / scalacOptions ++=  Seq(
   ) 
 
 ThisBuild / libraryDependencies ++= Seq(
-  "org.asynchttpclient" % "async-http-client" % "2.12.1",
+  "org.asynchttpclient" % "async-http-client" % "2.12.2",
   "org.typelevel" %% "cats-effect" % "3.0.0-M5",
   "ch.qos.logback" % "logback-classic" % "1.2.3" % Test,
   "org.scalameta" %% "munit" % "0.7.20"  % Test
