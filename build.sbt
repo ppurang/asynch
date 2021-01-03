@@ -1,5 +1,5 @@
 ThisBuild / name := "asynch"
-ThisBuild / version := "0.9.0"
+ThisBuild / version := "3.1.0-M3"
 ThisBuild / organization := "org.purang.net"
 ThisBuild / scalaVersion := "3.0.0-M3"
 

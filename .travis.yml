@@ -1,18 +1,18 @@
 language: scala
 jdk:
-- openjdk15
+  - openjdk15
 scala:
-- 3.0.0-M3
+  - 3.0.0-M3
 cache:
   directories:
-  - "$HOME/.sbt/1.0"
-  - "$HOME/.sbt/boot"
-  - "$HOME/.sbt/cache"
-  - "$HOME/.sbt/launchers"
-  - "$HOME/.ivy2/cache"
-  - "$HOME/.cache/coursier"
+    - "$HOME/.sbt/1.0"
+    - "$HOME/.sbt/boot"
+    - "$HOME/.sbt/cache"
+    - "$HOME/.sbt/launchers"
+    - "$HOME/.ivy2/cache"
+    - "$HOME/.cache/coursier"
 stages:
-- name: test
+  - name: test
 notifications:
   email:
     on_success: change
