@@ -1,8 +1,8 @@
-name := "asynch"
-version := "0.7.19"
-organization := "org.purang.net"
-scalaVersion := "2.13.4"
-crossScalaVersions := Seq("2.11.12", "2.12.12", "2.13.4")
+ThisBuild / name := "asynch"
+ThisBuild / version := "0.7.20"
+ThisBuild / organization := "org.purang.net"
+ThisBuild / scalaVersion := "2.13.4"
+ThisBuild / crossScalaVersions := Seq("2.11.12", "2.12.13", "2.13.4")
 
 libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.2" withSources(),
@@ -57,10 +57,11 @@ scalacOptions ++= (scalaBinaryVersion.value match {
   case "2.11" => oldScalacOptions
 })
 
-cancelable := true
+cancelable in Global := true
 fork := true
 turbo := true
-publishArtifact in packageDoc := false
+//publishArtifact in packageDoc := false
+This / sources in (sbt.Compile, doc) := Seq()
 publishArtifact in packageSrc := true
 publishArtifact in packageSrc in Test := false
 licenses += ("BSD", url("https://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
@@ -100,5 +101,4 @@ initialCommands in console :=
     |// sse.shutdownNow()
   """.stripMargin //to exit the console sse.close and defaultNonBlockingExecutor.close
 
-
-resolvers += Resolver.bintrayRepo("ppurang", "maven")
+publishTo := sonatypePublishToBundle.value

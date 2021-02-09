@@ -39,3 +39,4 @@ project/boot
 .bloop/
 .metals/
 metals.sbt
+credentials.sbt
