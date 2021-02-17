@@ -1,135 +1,63 @@
-[![Build Status](https://travis-ci.com/ppurang/asynch.svg?branch=master)](https://travis-ci.com/ppurang/asynch)
+[![Build Status](https://travis-ci.com/ppurang/asynch.svg?branch=scala3)](https://travis-ci.com/ppurang/asynch)
 
-[![Download](https://api.bintray.com/packages/ppurang/maven/asynch/images/download.svg) ](https://bintray.com/ppurang/maven/asynch/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.purang.net/asynch_3.0.0-RC1/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.purang.net/asynch_3.0.0-RC1/badge.svg)
 
-## Prologue
+## Version
 
-Sbt library dependency  (for latest versions check https://bintray.com/ppurang/maven/asynch)
-
-    //for netty 4.0.x
-    libraryDependencies += "org.purang.net" %% "asynch" % "0.6.1" withSources()
-
-    //for netty 4.1.x and async-http-client:2.10.x
-    libraryDependencies += "org.purang.net" %% "asynch" % "0.7.17" withSources()
-
-From
-
-    resolvers += "ppurang bintray" at "https://dl.bintray.com/ppurang/maven"
-
-## Quick
-
-The code below executes a **blocking** `POST` against `http://httpize.herokuapp.com/post` with request headers `Accept: application/json, text/html, text/plain`,  `Cache-Control: no-cache` and `Content-Type: text/plain`, and request entity `some very important message`. It expects a `200` with some response body. If it encounters an exception or another status code then they are returned too. The type returned is `\/[String, String]`: left `String` (`-\/[String]`) indicates the error, and the right `String` (`\/-[String]`)  contains the successful response body.
-
+For latest version check the maven badge above. For other versions check: https://search.maven.org/search?q=org.purang.net  or https://repo1.maven.org/maven2/org/purang/net/
 
 ```scala
-import org.purang.net.http._
-import scalaz._, Scalaz._
-import org.purang.net.http.ning.DefaultAsyncHttpClientNonBlockingExecutor
-import org.asynchttpclient.DefaultAsyncHttpClientConfig
-
-implicit val sse = java.util.concurrent.Executors.newScheduledThreadPool(2)
-val config = new DefaultAsyncHttpClientConfig.Builder()
-  .setCompressionEnforced(true)
-  .setConnectTimeout(500)
-  .setRequestTimeout(3000)
-  .setCookieStore(null) //recommended as clients should be stateless
-  .build()
-implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
-
-val response = (POST >
-   "http://httpize.herokuapp.com/post" >>
-   ("Accept" `:` "application/json" ++ "text/html" ++ "text/plain") ++
-   ("Cache-Control" `:` "no-cache") ++
-   ("Content-Type" `:` "text/plain") >>>
-   "some very important message").~>(
-     (x: ExecutedRequest) => x.fold(
-        t => t._1.getMessage.left,
-        {
-          case (200, _, Some(body), _) => body.right
-          case (status: Status, headers: Headers, body: Body, req: Request) => status.toString.left
-        }
-      ))
-
-
-// close the client
-// newExecutor.close()
-// sse.shutdownNow()
+    libraryDependencies += "org.purang.net" %% "asynch" % "3.0.0-RC1"
 ```
 
-For examples of **non blocking/ asynchronous calls** look at  [src/test/scala/NonBlockingExecutorSpec.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/NonBlockingExecutorSpec.scala)
+## Quick start
 
-For examples of **blocking calls** look at  [src/test/scala/ExecutorSpec.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/ExecutorSpec.scala)
-
-For an example of a **custom configured executor** look at [src/test/scala/CustomNingExecutorSpec.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/CustomNingExecutorSpec.scala). Here is the meat of the code:
-
+Checkout `Main.scala` 
 
 ```scala
-implicit val sse = java.util.concurrent.Executors.newScheduledThreadPool(2)
-val config = new DefaultAsyncHttpClientConfig.Builder()
-  .setCompressionEnforced(true)
-  .setConnectTimeout(500)
-  .setRequestTimeout(3000)
-  .setCookieStore(null) //recommended as clients should be stateless
-  .build()
-implicit val newExecutor = DefaultAsyncHttpClientNonBlockingExecutor(config)
+package org.purang.net.http
+
+import org.purang.net.http.asynchttpclient.AsyncHttpClient
+import org.asynchttpclient.{DefaultAsyncHttpClientConfig, DefaultAsyncHttpClient, AsyncHttpClient => UnderlyingHttpClient}
+
+import cats.data.NonEmptyChain
+import cats.effect.IO
+import cats.effect.unsafe.implicits.global
+import cats.syntax.show._
+
+import java.util.concurrent.TimeUnit
+
+@main def start(): Unit =
+  val req = GET > "https://httpbin.org/delay/1" >> Headers(NonEmptyChain(Accept(ApplicationJson)))
+
+  val config = new DefaultAsyncHttpClientConfig.Builder()
+    .setCompressionEnforced(true)
+    .setConnectTimeout(500)
+    .setRequestTimeout(3000)
+    .setCookieStore(null)
+    .build()
+
+  val underlyingclient: UnderlyingHttpClient = new DefaultAsyncHttpClient(config)
+
+  println((for {
+    c <- AsyncHttpClient.sync[IO](
+      underlyingclient
+    )
+    r <- c.execute(
+      req,
+      Timeout(2000, TimeUnit.MILLISECONDS)
+    )
+  } yield r.show).attempt.unsafeRunSync())
 ```
-
-## Types
-
-
-```scala
-type FailedRequest =  (Throwable, Request)
-
-type AResponse = (Status, Headers, Body, Request)
-
-type or[+E, +A] = \/[E, A]
-
-type ExecutedRequest = FailedRequest or AResponse
-
-type NonBlockingExecutedRequest = scalaz.concurrent.Task[AResponse]
-
-trait NonBlockingExecutor extends (Timeout => Request => NonBlockingExecutedRequest)
-
-type ExecutedRequestHandler[T] = (ExecutedRequest => T)
-```
-
-## Testing support? Easy.
-
-Here is an example of test executor [src/test/scala/TestExecutor.scala](https://github.com/ppurang/asynch/blob/master/src/test/scala/TestExecutor.scala)
- that looks up things in a Map used internally to test things.
-
-
-## Philosophy
-
-0. Timeouts - Yes! we do timeouts.
-1. Immutable - API to assemble requests and response handling is immutable.
-2. Easy parts are easy (if you can look beyond weird operators and operator precedence). For example a request is easy to assemble
-`GET > "http://www.google.com"` actually even the `GET` isn't really needed either `("http://www.host.com" >> Accept(ApplicationJson))`.
-3. Full control -  you are forced to deal with the exceptions and responses. You even have the request that got executed if you wanted to modify it to re-execute.
-4. Parts are done with scalaz goodness.
-
-
-## Limitations
-
-0. Too many implicits!
-1. Entity bodies can only be strings or types that can implictly be converted to strings. No endless Streams.
-2. No explicit Authentication support.
-3. No web socket or such support.
-4. Underlying http call infrastructure is as asynchronous, fast, bug-free as async-http-client.
-5. No metrics and no circuit breakers.
-
 
 ## Help/Join
 
-Critique is sought actively. Help will be provided keenly. Contributions are welcome. Install simple build tool 0.13+, fork the repo and get hacking.
-
+Critique is sought actively. Help will be provided keenly. Contributions are welcome. Install simple build tool 1+, fork the repo and get hacking.
 
 ## LICENSE
 
 ```scala
-
 licenses += ("BSD", url("http://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
-
 ```
 
 ## Disclaimer

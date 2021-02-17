@@ -11,7 +11,7 @@ import cats.syntax.show._
 import java.util.concurrent.TimeUnit
 
 @main def start(): Unit =
-  val req = GET > "https://httpbin.org/delay/1" >> Headers(NonEmptyChain(Accept(TextHtml)))
+  val req = GET > "https://httpbin.org/delay/1" >> Headers(NonEmptyChain(Accept(ApplicationJson)))
 
   val config = new DefaultAsyncHttpClientConfig.Builder()
     .setCompressionEnforced(true)
