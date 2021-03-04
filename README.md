@@ -1,23 +1,28 @@
 [![Build Status](https://travis-ci.com/ppurang/asynch.svg?branch=master)](https://travis-ci.com/ppurang/asynch)
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.purang.net/asynch_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.purang.net/asynch_2.13/badge.svg)
+
+## Move to 0.7.20 or newer releases, now! 
+
+Sunsetting of Bintray is forcing our hand to give up on versions before `0.7.20`. So please migrate to `0.7.20` or later ASAP. Checkout the releases https://github.com/ppurang/asynch/releases.    
+
+
 ## Prologue
 
-Sbt library dependency  (for latest versions check https://bintray.com/ppurang/maven/asynch)
+Sbt library dependency 
 
-    //for netty 4.0.x
-    libraryDependencies += "org.purang.net" %% "asynch" % "0.6.1" withSources()
-
-    //for netty 4.1.x and async-http-client:2.10.x
-    libraryDependencies += "org.purang.net" %% "asynch" % "0.7.20" withSources()
-
+```scala
+libraryDependencies += "org.purang.net" %% "asynch" % "0.7.20" withSources()
+```
 From Maven Central, check the badge above.
 
 For older releases use:
 
-    resolvers += "ppurang bintray" at "https://dl.bintray.com/ppurang/maven"
-
+```scala
+resolvers += "ppurang bintray" at "https://dl.bintray.com/ppurang/maven"
+```
 <b>Note:</b> Soon the bintray service will be sunset and not available hence use the maven central versions. Checkout - https://search.maven.org/search?q=org.purang.net
+
 
 ## Quick
 
