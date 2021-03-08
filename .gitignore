@@ -40,3 +40,5 @@ project/boot
 .metals/
 metals.sbt
 credentials.sbt
+.bsp
+.vscode
