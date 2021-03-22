@@ -1,5 +1,5 @@
 ThisBuild / name := "asynch"
-ThisBuild / version := "3.0.0-RC1"
+ThisBuild / version := "3.0.0-RC3" // we shadow cats-effect 3 RCs
 ThisBuild / organization := "org.purang.net"
 ThisBuild / scalaVersion := "3.0.0-RC1"
 
@@ -33,7 +33,7 @@ ThisBuild / scalacOptions ++=  Seq(
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.2",
-  "org.typelevel" %% "cats-effect" % "3.0.0-RC2",
+  "org.typelevel" %% "cats-effect" % "3.0.0-RC3",
   "ch.qos.logback" % "logback-classic" % "1.2.3" % Test,
   "org.scalameta" %% "munit" % "0.7.22"  % Test
 ).map(_.withSources())
