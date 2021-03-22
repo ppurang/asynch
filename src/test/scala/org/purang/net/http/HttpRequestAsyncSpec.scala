@@ -6,13 +6,12 @@ import cats.effect.implicits._
 import cats.implicits._
 import cats.syntax.all._
 import cats.effect.syntax.all._
-import org.purang.net.http.catseffect.IORuntimeCreator
-import org.purang.net.http.catseffect.unsafe.CustomIORuntime
+
 import org.purang.util.concurrent.DefaultThreadFactory
 
 import java.util.concurrent.{TimeUnit, TimeoutException}
 
-class HttpRequestSpec extends munit.FunSuite {
+class HttpRequestAsyncSpec extends munit.FunSuite {
   val saneTimeout = Timeout(2000, TimeUnit.MILLISECONDS)
   val shorterTimeout = Timeout(1000, TimeUnit.MILLISECONDS)
   val underlyingClient  =  {
@@ -28,39 +27,12 @@ class HttpRequestSpec extends munit.FunSuite {
 
     new DefaultAsyncHttpClient(config)
   }
-  
-  test("show with headers and body") {
-    val r = GET > "https://www.google.com" >> Headers(NonEmptyChain(Accept(TextHtml))) >>> "Hmmmmmmmm"
-
-    assertEquals(
-      r.show,
-      s"""GET https://www.google.com${Constants.CRLF}ACCEPT: text/html${Constants.CRLF}Hmmmmmmmm"""
-    )
-  }
-
-  test("show with headers only") {
-    val r = GET > "https://www.google.com" >> Headers(NonEmptyChain(Accept(TextHtml)))
-
-    assertEquals(
-      r.show,
-      s"""GET https://www.google.com${Constants.CRLF}ACCEPT: text/html${Constants.CRLF}"""
-    )
-  }
-
-  test("show with body only") {
-    val r = GET > "https://www.google.com" >>> "Hmmmmmmmm"
-
-    assertEquals(
-      r.show,
-      s"""GET https://www.google.com${Constants.CRLF}Hmmmmmmmm"""
-    )
-  }
 
   test("enable a synchronous http request") {
     val req = GET > "https://httpbin.org/get" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
-    
+
     val call = for {
-      c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.sync[IO](
+      c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.async[IO](
         underlyingClient
       )
       r <- c.execute(
@@ -72,12 +44,12 @@ class HttpRequestSpec extends munit.FunSuite {
     import cats.effect.unsafe.implicits.global
     assertEquals(call.map(_.status).attempt.unsafeRunSync(), Right(HttpStatus(200)))
   }
-  
+
   test("a synchronous http request should timeout") {
     val req = GET > "https://httpbin.org/delay/3" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
 
     val call = for {
-      c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.sync[IO](
+      c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.async[IO](
         underlyingClient
       )
       r <- c.execute(
@@ -88,16 +60,16 @@ class HttpRequestSpec extends munit.FunSuite {
 
     import cats.effect.unsafe.implicits.global
     val result = call.map(_.status).attempt.unsafeRunSync()
-    assert(result.isLeft && 
+    assert(result.isLeft &&
       result.bimap(
-      {
-        case t: TimeoutException => true
-        case _ => false
-      },
+        {
+          case t: TimeoutException => true
+          case _ => false
+        },
         x =>  false
       ).merge)
   }
-  
+
   test("enable an asynchronous http request") {
     val req = GET > "https://httpbin.org/get" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
 
@@ -116,24 +88,6 @@ class HttpRequestSpec extends munit.FunSuite {
     assertEquals(call.map(_.status).attempt.unsafeRunSync(), Right(HttpStatus(200)))
   }
 
-  test("enable an asynchronous http request with custom IORuntime") {
-    val req = GET > "https://httpbin.org/get" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
-
-    implicit val runtime : cats.effect.unsafe.IORuntime =  CustomIORuntime.global
-    
-    val call : IO[HttpResponse] = for {
-      c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.async[IO](
-        underlyingClient
-      )
-      r <- c.execute(
-        req,
-        saneTimeout
-      )
-    } yield r
-    
-    assertEquals(call.map(_.status).attempt.unsafeRunSync(), Right(HttpStatus(200)))
-  }
-  
   test("an asynchronous http request should timeout") {
     val req = GET > "https://httpbin.org/delay/5" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
 
