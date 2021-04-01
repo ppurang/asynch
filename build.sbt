@@ -1,7 +1,7 @@
 ThisBuild / name := "asynch"
-ThisBuild / version := "3.0.0-RC3" // we shadow cats-effect 3 RCs
+ThisBuild / version := "3.0.0-RC4" // we shadow cats-effect 3 RCs
 ThisBuild / organization := "org.purang.net"
-ThisBuild / scalaVersion := "3.0.0-RC1"
+ThisBuild / scalaVersion := "3.0.0-RC2"
 
 ThisBuild / update / evictionWarningOptions := EvictionWarningOptions.empty
 
@@ -33,9 +33,9 @@ ThisBuild / scalacOptions ++=  Seq(
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.3",
-  "org.typelevel" %% "cats-effect" % "3.0.0-RC3",
+  "org.typelevel" %% "cats-effect" % "3.0.1",
   "ch.qos.logback" % "logback-classic" % "1.2.3" % Test,
-  "org.scalameta" %% "munit" % "0.7.22"  % Test
+  "org.scalameta" %% "munit" % "0.7.23"  % Test
 ).map(_.withSources())
 
 ThisBuild / testFrameworks += new TestFramework("munit.Framework")
