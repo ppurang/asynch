@@ -2,7 +2,7 @@ ThisBuild / name := "asynch"
 ThisBuild / version := "0.7.20"
 ThisBuild / organization := "org.purang.net"
 ThisBuild / scalaVersion := "2.13.6"
-ThisBuild / crossScalaVersions := Seq("2.11.12", "2.12.13", "2.13.6")
+ThisBuild / crossScalaVersions := Seq("2.11.12", "2.12.14", "2.13.6")
 
 libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.3" withSources(),
