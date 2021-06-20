@@ -1,16 +1,16 @@
 ThisBuild / name := "asynch"
-ThisBuild / version := "3.0.0-RC4" // we shadow cats-effect 3 RCs
+ThisBuild / version := "3.0.0" // we shadow cats-effect 3 RCs
 ThisBuild / organization := "org.purang.net"
-ThisBuild / scalaVersion := "3.0.0-RC2"
+ThisBuild / scalaVersion := "3.0.0"
 
 ThisBuild / update / evictionWarningOptions := EvictionWarningOptions.empty
 
 ThisBuild / fork := true
 ThisBuild / logBuffered := false
-ThisBuild / parallelExecution in Test := true
+ThisBuild / Test / parallelExecution  := true
 
 //ThisBuild / publishArtifact in packageDoc := false
-This / sources in (sbt.Compile, doc) := Seq()
+This / sbt.Compile / doc / sources := Seq()
 ThisBuild / publishArtifact in packageSrc := true
 ThisBuild / publishArtifact in packageSrc in Test := false
 ThisBuild / licenses += ("BSD", url("https://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
@@ -33,9 +33,9 @@ ThisBuild / scalacOptions ++=  Seq(
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.3",
-  "org.typelevel" %% "cats-effect" % "3.0.1",
+  "org.typelevel" %% "cats-effect" % "3.1.1",
   "ch.qos.logback" % "logback-classic" % "1.2.3" % Test,
-  "org.scalameta" %% "munit" % "0.7.23"  % Test
+  "org.scalameta" %% "munit" % "0.7.26"  % Test
 ).map(_.withSources())
 
 ThisBuild / testFrameworks += new TestFramework("munit.Framework")
