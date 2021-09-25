@@ -2,14 +2,14 @@ ThisBuild / name := "asynch"
 ThisBuild / version := "0.7.20"
 ThisBuild / organization := "org.purang.net"
 ThisBuild / scalaVersion := "2.13.6"
-ThisBuild / crossScalaVersions := Seq("2.11.12", "2.12.14", "2.13.6")
+ThisBuild / crossScalaVersions := Seq("2.11.12", "2.12.15", "2.13.6")
 
 libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.3" withSources(),
   "org.scalaz" %% "scalaz-core" % "7.2.33" withSources(),
   "org.scalaz" %% "scalaz-concurrent" % "7.2.33" withSources(),
   "org.scalatest" %% "scalatest" % "3.2.10" % "test",
-  "ch.qos.logback" % "logback-classic" % "1.2.5" % "test"
+  "ch.qos.logback" % "logback-classic" % "1.2.6" % "test"
 )
 
 scalacOptions ++= Seq(
