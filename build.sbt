@@ -9,7 +9,7 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-core" % "7.2.33" withSources(),
   "org.scalaz" %% "scalaz-concurrent" % "7.2.33" withSources(),
   "org.scalatest" %% "scalatest" % "3.2.9" % "test",
-  "ch.qos.logback" % "logback-classic" % "1.2.5" % "test"
+  "ch.qos.logback" % "logback-classic" % "1.2.6" % "test"
 )
 
 scalacOptions ++= Seq(
