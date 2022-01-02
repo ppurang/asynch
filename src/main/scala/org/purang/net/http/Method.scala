@@ -1,6 +1,4 @@
-package org.purang.net
-
-package http
+package org.purang.net.http
 
 import cats.Show 
 

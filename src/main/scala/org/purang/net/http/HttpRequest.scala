@@ -1,6 +1,4 @@
-package org.purang.net
-
-package http
+package org.purang.net.http
 
 import cats.data._
 import cats.Show
@@ -37,26 +35,24 @@ object HttpRequest {
 
   implicit val show: Show[HttpRequest] = show(Constants.CRLF)
 
-  def show(seperator: String): Show[HttpRequest] = Show.show {
-    req => {
-      val firstLine = s"""${req.method.show} ${req.url.show}$seperator"""
-      val headers = req.headers.fold("")(Headers.show(seperator).show(_))
+  def show(seperator: String): Show[HttpRequest] = Show.show { req =>
+    {
+      val firstLine         = s"""${req.method.show} ${req.url.show}$seperator"""
+      val headers           = req.headers.fold("")(Headers.show(seperator).show(_))
       val reqMsgTillHeaders = s"""$firstLine$headers"""
-
-      if req.body.isDefined && req.headers.isDefined then
+      if (req.body.isDefined && req.headers.isDefined) {
         s"""$reqMsgTillHeaders$seperator${req.body.fold("")(_.show)}"""
-      else if req.body.isDefined then
+      } else if (req.body.isDefined) {
         s"""$reqMsgTillHeaders${req.body.fold("")(_.show)}"""
-      else s"""$reqMsgTillHeaders$seperator"""
+      } else {
+        s"""$reqMsgTillHeaders$seperator"""
+      }
     }
   }
 }
 
-case class RequestImpl(method: Method = GET,
-                       url: Url,
-                       headers: Option[Headers] = None,
-                       body: Option[Body] = None
-                      ) extends HttpRequest {
+case class RequestImpl(method: Method = GET, url: Url, headers: Option[Headers] = None, body: Option[Body] = None)
+    extends HttpRequest {
 
   override def >>(additionalHeaders: Headers): RequestImpl = copy(
     headers = headers.map(x => Headers(x.hs ++ additionalHeaders.hs)).orElse(Option(additionalHeaders))

@@ -1,14 +1,27 @@
 [![Build Status](https://travis-ci.com/ppurang/asynch.svg?branch=scala3)](https://travis-ci.com/ppurang/asynch)
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.purang.net/asynch_3.0.0-RC1/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.purang.net/asynch_3.0.0-RC1/badge.svg)
+```
+Reintroduce once this actually works
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.purang.net/asynch_3.1.0/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.purang.net/asynch_3.1.0/badge.svg)
+```
+
+# Asynch - Http clients made easy peasy
+
+Check quickstart below, or this [Main.scala](https://github.com/ppurang/asynch/blob/main/src/main/scala-3/org/purang/net/http/Main.scala) for a `Scala 3` flavoured example.
+
+For further examples checkout the tests.
+
+**Note**: Previous versions are available on branch `0.7.x`
 
 ## Version
 
 For latest version check the maven badge above. For other versions check: https://search.maven.org/search?q=org.purang.net  or https://repo1.maven.org/maven2/org/purang/net/
 
 ```scala
-    libraryDependencies += "org.purang.net" %% "asynch" % "3.0.0-RC1"
+    libraryDependencies += "org.purang.net" %% "asynch" % "3.0.0-RC4"
 ```
+
+
 
 ## Quick start
 

@@ -12,16 +12,18 @@ import org.purang.util.concurrent.DefaultThreadFactory
 import java.util.concurrent.{TimeUnit, TimeoutException}
 
 class HttpRequestSyncSpec extends munit.FunSuite {
-  val saneTimeout = Timeout(2000, TimeUnit.MILLISECONDS)
-  val shorterTimeout = Timeout(1000, TimeUnit.MILLISECONDS)
-  val underlyingClient  =  {
+  val saneTimeout      = Timeout(2000, TimeUnit.MILLISECONDS)
+  val shorterTimeout   = Timeout(1000, TimeUnit.MILLISECONDS)
+  val underlyingClient = {
     import org.asynchttpclient.{Request => _, Response => AResponse, _}
 
     val config = new DefaultAsyncHttpClientConfig.Builder()
       .setCompressionEnforced(true)
       .setConnectTimeout(500)
       .setRequestTimeout(10000)
-      .setThreadFactory(new DefaultThreadFactory("HttpRequestSpec.client", true, 10, Thread.currentThread().getUncaughtExceptionHandler))
+      .setThreadFactory(
+        new DefaultThreadFactory("HttpRequestSpec.client", true, 10, Thread.currentThread().getUncaughtExceptionHandler)
+      )
       .setCookieStore(null)
       .build()
 
@@ -33,12 +35,12 @@ class HttpRequestSyncSpec extends munit.FunSuite {
 
     val call = for {
       c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.sync[IO](
-        underlyingClient
-      )
+             underlyingClient
+           )
       r <- c.execute(
-        req,
-        saneTimeout
-      )
+             req,
+             saneTimeout
+           )
     } yield r
 
     import cats.effect.unsafe.implicits.global
@@ -50,24 +52,26 @@ class HttpRequestSyncSpec extends munit.FunSuite {
 
     val call = for {
       c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.sync[IO](
-        underlyingClient
-      )
+             underlyingClient
+           )
       r <- c.execute(
-        req,
-        shorterTimeout
-      )
+             req,
+             shorterTimeout
+           )
     } yield r
 
     import cats.effect.unsafe.implicits.global
     val result = call.map(_.status).attempt.unsafeRunSync()
-    assert(result.isLeft &&
-      result.bimap(
-      {
-        case t: TimeoutException => true
-        case _ => false
-      },
-        x =>  false
-      ).merge)
+    assert(
+      result.isLeft &&
+        result.fold(
+          {
+            case t: TimeoutException => true
+            case _                   => false
+          },
+          x => false
+        )
+    )
   }
 
   test("enable an asynchronous http request") {
@@ -75,12 +79,12 @@ class HttpRequestSyncSpec extends munit.FunSuite {
 
     val call = for {
       c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.async[IO](
-        underlyingClient
-      )
+             underlyingClient
+           )
       r <- c.execute(
-        req,
-        saneTimeout
-      )
+             req,
+             saneTimeout
+           )
     } yield r
 
     import cats.effect.unsafe.implicits.global
@@ -93,25 +97,28 @@ class HttpRequestSyncSpec extends munit.FunSuite {
 
     val call = for {
       c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.async[IO](
-        underlyingClient
-      )
+             underlyingClient
+           )
       r <- c.execute(
-        req,
-        shorterTimeout
-      )
+             req,
+             shorterTimeout
+           )
     } yield r
 
     import cats.effect.unsafe.implicits.global
 
     val result = call.map(_.status).attempt.unsafeRunSync()
-    assert(result.isLeft &&
-      result.bimap(
-        {
-          case t: TimeoutException => true
-          case _ => false
-        },
-        x =>  false
-      ).merge)
+    assert(
+      result.isLeft &&
+        result
+          .fold(
+            {
+              case t: TimeoutException => true
+              case _                   => false
+            },
+            x => false
+          )
+    )
   }
 
 }
