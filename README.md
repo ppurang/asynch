@@ -25,12 +25,11 @@ For latest version check the maven badge above. For other versions check: https:
 
 ## Quick start
 
-Checkout `Main.scala` 
+Checkout `Main.scala`
 
 ```scala
 package org.purang.net.http
 
-import org.purang.net.http.asynchttpclient.AsyncHttpClient
 import org.asynchttpclient.{DefaultAsyncHttpClientConfig, DefaultAsyncHttpClient, AsyncHttpClient => UnderlyingHttpClient}
 
 import cats.data.NonEmptyChain
@@ -40,27 +39,27 @@ import cats.syntax.show._
 
 import java.util.concurrent.TimeUnit
 
-@main def start(): Unit =
-  val req = GET > "https://httpbin.org/delay/1" >> Headers(NonEmptyChain(Accept(ApplicationJson)))
+@main def start (): Unit =
+  val req = GET > "https://httpbin.org/delay/1" >> Headers (NonEmptyChain (Accept (ApplicationJson) ) )
 
-  val config = new DefaultAsyncHttpClientConfig.Builder()
-    .setCompressionEnforced(true)
-    .setConnectTimeout(500)
-    .setRequestTimeout(3000)
-    .setCookieStore(null)
-    .build()
+  val config = new DefaultAsyncHttpClientConfig.Builder ()
+  .setCompressionEnforced (true)
+  .setConnectTimeout (500)
+  .setRequestTimeout (3000)
+  .setCookieStore (null)
+  .build ()
 
-  val underlyingclient: UnderlyingHttpClient = new DefaultAsyncHttpClient(config)
+  val underlyingclient: UnderlyingHttpClient = new DefaultAsyncHttpClient (config)
 
-  println((for {
-    c <- AsyncHttpClient.sync[IO](
-      underlyingclient
-    )
-    r <- c.execute(
-      req,
-      Timeout(2000, TimeUnit.MILLISECONDS)
-    )
-  } yield r.show).attempt.unsafeRunSync())
+  println ((for {
+  c <- AsyncHttpClient.sync[IO] (
+  underlyingclient
+  )
+  r <- c.execute (
+  req,
+  Timeout (2000, TimeUnit.MILLISECONDS)
+  )
+  } yield r.show).attempt.unsafeRunSync () )
 ```
 
 ## Help/Join
