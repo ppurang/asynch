@@ -1,10 +1,9 @@
 package org.purang.net.http
 
-import cats.Show 
+import cats.Show
 
-/**
- * The following makes it impossible to define your own HTTP Methods which might be a good thing
- */
+/** The following makes it impossible to define your own HTTP Methods which might be a good thing
+  */
 sealed trait Method {
   def >(url: String): HttpRequest = HttpRequest.apply(this, Url(url))
 
