@@ -6,9 +6,8 @@ import java.util.concurrent.{TimeUnit, TimeoutException}
 import cats.data.NonEmptyChain
 import cats.syntax.all._
 
-
 class HttpRequestShowSpec extends munit.FunSuite {
-  
+
   test("show with headers and body") {
     val r = GET > "https://www.google.com" >> Headers(NonEmptyChain(Accept(TextHtml))) >>> "Hmmmmmmmm"
 
