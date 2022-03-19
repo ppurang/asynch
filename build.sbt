@@ -46,7 +46,7 @@ ThisBuild / scalacOptions ++= Seq(
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.3",
-  "org.typelevel"      %% "cats-effect"       % "3.3.4",
+  "org.typelevel"      %% "cats-effect"       % "3.3.8",
   "ch.qos.logback"      % "logback-classic"   % "1.2.10" % Test,
   "org.scalameta"      %% "munit"             % "0.7.29" % Test
 ).map(_.withSources())
