@@ -17,7 +17,7 @@ trait Header {
 object Header {
   implicit val show: Show[Header] = Show.fromToString
 
-  def apply(name: String, values: NonEmptyChain[String]) : Header = HeaderImpl(name, values)
+  def apply(name: String, values: NonEmptyChain[String]): Header = HeaderImpl(name, values)
 }
 
 final case class HeaderImpl(name: String, values: NonEmptyChain[String]) extends Header
@@ -36,7 +36,7 @@ object Accept extends Function[HeaderValues, Header] {
   def apply(headerValues: HeaderValues): Header = "ACCEPT" `:` headerValues
 }
 
-object TextPlain extends HeaderValues(NonEmptyChain("text/plain"))
-object TextHtml extends HeaderValues(NonEmptyChain("text/html"))
+object TextPlain       extends HeaderValues(NonEmptyChain("text/plain"))
+object TextHtml        extends HeaderValues(NonEmptyChain("text/html"))
 object ApplicationJson extends HeaderValues(NonEmptyChain("application/json"))
-object MultipartMixed extends HeaderValues(NonEmptyChain("multipart/mixed"))
+object MultipartMixed  extends HeaderValues(NonEmptyChain("multipart/mixed"))

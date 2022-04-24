@@ -34,4 +34,3 @@ object Url {
 }
 
 final case class Timeout(length: Long, unit: TimeUnit)
-
