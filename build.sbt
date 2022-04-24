@@ -4,9 +4,9 @@ enablePlugins(GitBranchPrompt)
 ThisBuild / name         := "asynch"
 ThisBuild / version      := "3.1.0"
 ThisBuild / organization := "org.purang.net"
-ThisBuild / scalaVersion := "3.1.0"
+ThisBuild / scalaVersion := "3.1.2"
 
-ThisBuild / crossScalaVersions := Seq("3.1.0", "2.13.8", "2.12.15")
+ThisBuild / crossScalaVersions := Seq("3.1.2", "2.13.8", "2.12.15")
 ThisBuild / versionScheme      := Some("early-semver")
 
 ThisBuild / update / evictionWarningOptions := EvictionWarningOptions.empty
@@ -46,7 +46,7 @@ ThisBuild / scalacOptions ++= Seq(
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.3",
-  "org.typelevel"      %% "cats-effect"       % "3.3.4",
+  "org.typelevel"      %% "cats-effect"       % "3.3.11",
   "ch.qos.logback"      % "logback-classic"   % "1.2.10" % Test,
   "org.scalameta"      %% "munit"             % "0.7.29" % Test
 ).map(_.withSources())
