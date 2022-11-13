@@ -2,7 +2,7 @@ enablePlugins(GitVersioning)
 enablePlugins(GitBranchPrompt)
 
 ThisBuild / name         := "asynch"
-ThisBuild / version      := "3.2.1"
+ThisBuild / version      := "3.2.1-without-netty-cve"
 ThisBuild / organization := "org.purang.net"
 ThisBuild / scalaVersion := "3.2.1"
 
@@ -44,9 +44,15 @@ ThisBuild / scalacOptions ++= Seq(
   }
 }
 
+val nettyVersion =  "4.1.85.Final" //to avoid CVEs sonatype sbom report https://sbom.lift.sonatype.com/report/T1-a0368c8f29fdaa555824-137ffebca10e4-1668368805-7f646e53dbcc44efa78ba2a44128c7ae
+
 ThisBuild / libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.3",
   "org.typelevel"      %% "cats-effect"       % "3.4.0",
+  "io.netty" % "netty-codec" % nettyVersion,
+  "io.netty" % "netty-codec-http" % nettyVersion,
+  "io.netty" % "netty-common" % nettyVersion,
+  "io.netty" % "netty-handler" % nettyVersion,
   "ch.qos.logback"      % "logback-classic"   % "1.4.4" % Test,
   "org.scalameta"      %% "munit"             % "0.7.29" % Test
 ).map(_.withSources())
