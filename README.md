@@ -18,10 +18,8 @@ For further examples checkout the tests.
 For latest version check the maven badge above. For other versions check: https://search.maven.org/search?q=org.purang.net  or https://repo1.maven.org/maven2/org/purang/net/
 
 ```scala
-    libraryDependencies += "org.purang.net" %% "asynch" % "3.0.0-RC4"
+    libraryDependencies += "org.purang.net" %% "asynch" % "3.2.1" //we tend to follow scala 3's version if possible
 ```
-
-
 
 ## Quick start
 
