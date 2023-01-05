@@ -1,9 +1,6 @@
 [![Build Status](https://travis-ci.com/ppurang/asynch.svg?branch=scala3)](https://travis-ci.com/ppurang/asynch)
 
-```
-Reintroduce once this actually works
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.purang.net/asynch_3.1.0/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.purang.net/asynch_3.1.0/badge.svg)
-```
+[![Maven Central](https://img.shields.io/maven-central/v/org.purang.net/asynch_3)](https://search.maven.org/#search|ga|1|org.purang.net.asynch)
 
 # Asynch - Http clients made easy peasy
 
