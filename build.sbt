@@ -49,7 +49,7 @@ val nettyVersion =
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.3",
-  "org.typelevel"      %% "cats-effect"       % "3.4.4",
+  "org.typelevel"      %% "cats-effect"       % "3.4.5",
   "io.netty"            % "netty-codec"       % nettyVersion,
   "io.netty"            % "netty-codec-http"  % nettyVersion,
   "io.netty"            % "netty-common"      % nettyVersion,
