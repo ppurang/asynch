@@ -2,7 +2,7 @@ package org.purang.net.http
 
 import org.purang.util.concurrent.DefaultThreadFactory
 
-import java.util.concurrent.{TimeUnit, TimeoutException}
+import java.util.concurrent.{ TimeUnit, TimeoutException }
 import cats.data.NonEmptyChain
 import cats.syntax.all._
 

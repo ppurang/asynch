@@ -1,8 +1,8 @@
 package org.purang.net.http.asynchttpclient
 
-import org.asynchttpclient.{Response => AResponse, Request => _, _}
-import org.asynchttpclient.{AsyncHttpClient => UnderlyingClient}
-import org.asynchttpclient.{AsyncHandler => Handler}
+import org.asynchttpclient.{ Response => AResponse, Request => _, _ }
+import org.asynchttpclient.{ AsyncHttpClient => UnderlyingClient }
+import org.asynchttpclient.{ AsyncHandler => Handler }
 import io.netty.handler.codec.http.HttpHeaders
 import cats.Defer
 import cats.data.NonEmptyChain

@@ -21,10 +21,10 @@ ThisBuild / packageSrc / publishArtifact        := true
 ThisBuild / Test / packageSrc / publishArtifact := false
 ThisBuild / licenses += ("BSD", url("https://www.tldrlegal.com/license/bsd-3-clause-license-%28revised%29"))
 
-Global / turbo                                  := true
-Global / cancelable                             := true
-Global / onChangedBuildSource                   := ReloadOnSourceChanges
-Global / lintUnusedKeysOnLoad                   := false
+Global / turbo                := true
+Global / cancelable           := true
+Global / onChangedBuildSource := ReloadOnSourceChanges
+Global / lintUnusedKeysOnLoad := false
 
 ThisBuild / scalacOptions ++= Seq(
   "-encoding",
