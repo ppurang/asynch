@@ -3,9 +3,9 @@ package org.purang.util.concurrent
 import cats.effect._
 import cats.syntax.flatMap._
 import cats.syntax.functor._
-import org.purang.util.concurrent.{DefaultThreadFactory, ThreadPriority, ThreadType}
+import org.purang.util.concurrent.{ DefaultThreadFactory, ThreadPriority, ThreadType }
 
-import java.util.concurrent.{ThreadFactory, Executors => ExecutorsJ}
+import java.util.concurrent.{ ThreadFactory, Executors => ExecutorsJ }
 
 trait ThreadFactoryCreator[F[_]] {
   def threadFactory(
