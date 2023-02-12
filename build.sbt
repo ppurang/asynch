@@ -45,7 +45,7 @@ ThisBuild / scalacOptions ++= Seq(
 }
 
 val nettyVersion =
-  "4.1.87.Final" // to avoid CVEs sonatype sbom report https://sbom.lift.sonatype.com/report/T1-a0368c8f29fdaa555824-137ffebca10e4-1668368805-7f646e53dbcc44efa78ba2a44128c7ae
+  "4.1.88.Final" // to avoid CVEs sonatype sbom report https://sbom.lift.sonatype.com/report/T1-a0368c8f29fdaa555824-137ffebca10e4-1668368805-7f646e53dbcc44efa78ba2a44128c7ae
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.3",
