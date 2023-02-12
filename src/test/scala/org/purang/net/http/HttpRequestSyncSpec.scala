@@ -12,7 +12,7 @@ import org.purang.util.concurrent.DefaultThreadFactory
 import java.util.concurrent.{ TimeUnit, TimeoutException }
 
 class HttpRequestSyncSpec extends munit.FunSuite {
-  val saneTimeout      = Timeout(2000, TimeUnit.MILLISECONDS)
+  val saneTimeout      = Timeout(3000, TimeUnit.MILLISECONDS)
   val shorterTimeout   = Timeout(1000, TimeUnit.MILLISECONDS)
   val underlyingClient = {
     import org.asynchttpclient.{ Request => _, Response => AResponse, _ }

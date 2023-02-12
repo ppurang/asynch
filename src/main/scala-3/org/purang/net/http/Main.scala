@@ -35,6 +35,5 @@ import java.util.concurrent.TimeUnit
              req,
              Timeout(2000, TimeUnit.MILLISECONDS)
            )
-      _ <- IO(underlyingclient.close) // so that the jvm can exit cleanly and not just wait for ever to shutdown...
-    } yield r.show).attempt.unsafeRunSync()
+    } yield r.show).attempt.guarantee(IO(underlyingclient.close)).unsafeRunSync()
   ) // this is just a quick and dirty example; don't do this in production code, use a Resource instead
