@@ -45,11 +45,11 @@ ThisBuild / scalacOptions ++= Seq(
 }
 
 val nettyVersion =
-  "4.1.88.Final" 
+  "4.1.88.Final"
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.12.3",
-  "org.typelevel"      %% "cats-effect"       % "3.4.6",
+  "org.typelevel"      %% "cats-effect"       % "3.4.7",
   "io.netty"            % "netty-codec"       % nettyVersion,
   "io.netty"            % "netty-codec-http"  % nettyVersion,
   "io.netty"            % "netty-common"      % nettyVersion,
