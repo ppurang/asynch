@@ -54,7 +54,7 @@ ThisBuild / libraryDependencies ++= Seq(
   "io.netty"            % "netty-codec-http"  % nettyVersion,
   "io.netty"            % "netty-common"      % nettyVersion,
   "io.netty"            % "netty-handler"     % nettyVersion,
-  "ch.qos.logback"      % "logback-classic"   % "1.4.6"  % Test,
+  "ch.qos.logback"      % "logback-classic"   % "1.4.7"  % Test,
   "org.scalameta"      %% "munit"             % "0.7.29" % Test
 ).map(_.withSources())
 
