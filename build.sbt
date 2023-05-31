@@ -4,9 +4,9 @@ enablePlugins(GitBranchPrompt)
 ThisBuild / name         := "asynch"
 ThisBuild / version      := "3.2.2"
 ThisBuild / organization := "org.purang.net"
-ThisBuild / scalaVersion := "3.2.2"
+ThisBuild / scalaVersion := "3.3.0"
 
-ThisBuild / crossScalaVersions := Seq("3.2.2", "2.13.10")
+ThisBuild / crossScalaVersions := Seq("3.3.0", "2.13.10")
 ThisBuild / versionScheme      := Some("early-semver")
 
 ThisBuild / update / evictionWarningOptions := EvictionWarningOptions.empty
