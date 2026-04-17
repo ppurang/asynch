@@ -4,12 +4,9 @@ import org.asynchttpclient.{ Response => AResponse, Request => _, _ }
 import org.asynchttpclient.{ AsyncHttpClient => UnderlyingClient }
 import org.asynchttpclient.{ AsyncHandler => Handler }
 import io.netty.handler.codec.http.HttpHeaders
-import cats.Defer
 import cats.data.NonEmptyChain
 import cats.effect.Sync
 import cats.effect.Async
-import cats.effect.Deferred
-import cats.effect.Concurrent
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import org.purang.net.http._
@@ -36,7 +33,7 @@ object AsyncHttpClient {
       }
     val responseBody: String    = response.getResponseBody(UTF8)
     val code: Int               = response.getStatusCode
-    HttpResponse(HttpStatus(code), NonEmptyChain.fromSeq(headers.toSeq).map(Headers(_)), Option(Body(responseBody)))
+    HttpResponse(HttpStatus(code), NonEmptyChain.fromSeq(headers).map(Headers(_)), Option(Body(responseBody)))
   }
 
   // Do we really need to delay creation of HttpClient ... would HttpClient[F] (instead of F[HttpClient[F]]) be enough?
@@ -67,13 +64,11 @@ object AsyncHttpClient {
 
   def async[F[+_]](client: => UnderlyingClient)(implicit
       A: Async[F]
-      // , C: Concurrent[F]
   ): F[HttpClient[F]] = A.delay {
     new HttpClient[F] {
       def execute(req: HttpRequest, timeout: Timeout): F[HttpResponse] = {
         for {
-          ft        <- A.delay(FiniteDuration(timeout.length, timeout.unit))
-          aresponse <- A.timeout(
+          aresponse <- A.timeoutAndForget(
                          A.async_[AResponse] { cb =>
                            val builder: RequestBuilder = new RequestBuilder(req.method.toString).setUrl(req.url.url)
                            for {
@@ -93,8 +88,9 @@ object AsyncHttpClient {
                              builder.setBody(content.b.getBytes(UTF8))
                            }
                            client.executeRequest(builder, CustomHandler(cb))
+                           ()
                          },
-                         ft
+                         timeout.toFiniteDuration
                        )
         } yield {
           responseToResponse(aresponse)
@@ -105,7 +101,7 @@ object AsyncHttpClient {
 
 }
 
-case class CustomHandler(callback: Either[Throwable, AResponse] => Unit) extends Handler[Unit] {
+final case class CustomHandler(callback: Either[Throwable, AResponse] => Unit) extends Handler[Unit] {
   val builder = new AResponse.ResponseBuilder()
 
   def onBodyPartReceived(content: HttpResponseBodyPart): Handler.State = {

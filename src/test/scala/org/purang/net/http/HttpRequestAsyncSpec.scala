@@ -12,28 +12,14 @@ import org.purang.util.concurrent.DefaultThreadFactory
 import java.util.concurrent.{ TimeUnit, TimeoutException }
 
 class HttpRequestAsyncSpec extends munit.FunSuite {
-  val saneTimeout      = Timeout(3000L, TimeUnit.MILLISECONDS)
-  val shorterTimeout   = Timeout(1000L, TimeUnit.MILLISECONDS)
-  val underlyingClient = {
-    import org.asynchttpclient.{ Request => _, Response => AResponse, _ }
 
-    val config = new DefaultAsyncHttpClientConfig.Builder()
-      .setCompressionEnforced(true)
-      .setConnectTimeout(500)
-      .setRequestTimeout(10000)
-      .setThreadFactory(
-        new DefaultThreadFactory("HttpRequestSpec.client", true, 10, Thread.currentThread().getUncaughtExceptionHandler)
-      )
-      .setCookieStore(null)
-      .build()
+  import HttpRequestSpecConstants._
 
-    new DefaultAsyncHttpClient(config)
-  }
+  test("enable an asynchronous http request") {
+    val req: HttpRequest =
+      GET > "https://httpbin.org/get" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
 
-  test("enable a synchronous http request") {
-    val req = GET > "https://httpbin.org/get" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
-
-    val call = for {
+    val call: IO[HttpResponse] = for {
       c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.async[IO](
              underlyingClient
            )
@@ -44,13 +30,14 @@ class HttpRequestAsyncSpec extends munit.FunSuite {
     } yield r
 
     import cats.effect.unsafe.implicits.global
-    assertEquals(call.map(_.status).attempt.unsafeRunSync(), Right(HttpStatus(200)))
+    assertEquals(call.map(_.status).attempt.unsafeRunSync(), OKR)
   }
 
-  test("a synchronous http request should timeout") {
-    val req = GET > "https://httpbin.org/delay/3" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
+  test("an asynchronous http request should timeout") {
+    val req: HttpRequest =
+      GET > "https://httpbin.org/delay/3" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
 
-    val call = for {
+    val call: IO[HttpResponse] = for {
       c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.async[IO](
              underlyingClient
            )
@@ -61,63 +48,16 @@ class HttpRequestAsyncSpec extends munit.FunSuite {
     } yield r
 
     import cats.effect.unsafe.implicits.global
-    val result = call.map(_.status).attempt.unsafeRunSync()
+    val result: Either[Throwable, HttpStatus] = call.map(_.status).attempt.unsafeRunSync()
     assert(
       result.isLeft &&
         result.fold(
           {
-            case t: TimeoutException => true
+            case _: TimeoutException => true
             case _                   => false
           },
-          x => false
+          _ => false
         )
-    )
-  }
-
-  test("enable an asynchronous http request") {
-    val req = GET > "https://httpbin.org/get" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
-
-    val call = for {
-      c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.async[IO](
-             underlyingClient
-           )
-      r <- c.execute(
-             req,
-             saneTimeout
-           )
-    } yield r
-
-    import cats.effect.unsafe.implicits.global
-
-    assertEquals(call.map(_.status).attempt.unsafeRunSync(), Right(HttpStatus(200)))
-  }
-
-  test("an asynchronous http request should timeout") {
-    val req = GET > "https://httpbin.org/delay/5" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
-
-    val call = for {
-      c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.async[IO](
-             underlyingClient
-           )
-      r <- c.execute(
-             req,
-             shorterTimeout
-           )
-    } yield r
-
-    import cats.effect.unsafe.implicits.global
-
-    val result = call.map(_.status).attempt.unsafeRunSync()
-    assert(
-      result.isLeft &&
-        result
-          .fold(
-            {
-              case t: TimeoutException => true
-              case _                   => false
-            },
-            x => false
-          )
     )
   }
 

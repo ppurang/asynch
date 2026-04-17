@@ -2,12 +2,18 @@ enablePlugins(GitVersioning)
 enablePlugins(GitBranchPrompt)
 
 ThisBuild / name         := "asynch"
-ThisBuild / version      := "3.2.2"
+ThisBuild / version      := "3.8.3-dont-use-publish-all-01"
 ThisBuild / organization := "org.purang.net"
-ThisBuild / scalaVersion := "3.2.2"
+ThisBuild / scalaVersion := "3.8.3"
 
-ThisBuild / crossScalaVersions := Seq("3.2.2", "2.13.10")
-ThisBuild / versionScheme      := Some("early-semver")
+ThisBuild / crossScalaVersions := Seq(
+  "3.8.3",
+  "3.7.4",
+  "3.3.7",
+  "2.13.18"
+)
+
+ThisBuild / versionScheme := Some("early-semver")
 
 ThisBuild / update / evictionWarningOptions := EvictionWarningOptions.empty
 
@@ -25,13 +31,13 @@ Global / turbo                := true
 Global / cancelable           := true
 Global / onChangedBuildSource := ReloadOnSourceChanges
 Global / lintUnusedKeysOnLoad := false
+Global / semanticdbEnabled    := true
 
 ThisBuild / scalacOptions ++= Seq(
   "-encoding",
   "UTF-8",
   "-feature",
   "-unchecked",
-  "-Xfatal-warnings",
   "-deprecation",
   "-language:implicitConversions"
 ) ++ {
@@ -42,20 +48,32 @@ ThisBuild / scalacOptions ++= Seq(
   } else {
     Seq()
   }
+} ++ {
+  if (scalaVersion.value.matches("^3.8.*")) {
+    Seq("-Werror")
+  } else {
+    Seq("-Xfatal-warnings")
+  }
 }
 
-val nettyVersion =
-  "4.1.90.Final"
+val nettyVersion = "4.2.12.Final"
+val munitVersion = "1.3.0"
 
 ThisBuild / libraryDependencies ++= Seq(
-  "org.asynchttpclient" % "async-http-client" % "2.12.3",
-  "org.typelevel"      %% "cats-effect"       % "3.4.8",
-  "io.netty"            % "netty-codec"       % nettyVersion,
-  "io.netty"            % "netty-codec-http"  % nettyVersion,
-  "io.netty"            % "netty-common"      % nettyVersion,
-  "io.netty"            % "netty-handler"     % nettyVersion,
-  "ch.qos.logback"      % "logback-classic"   % "1.4.6"  % Test,
-  "org.scalameta"      %% "munit"             % "0.7.29" % Test
+  "org.asynchttpclient" % "async-http-client"   % "3.0.9",
+  "org.typelevel"      %% "cats-core"           % "2.13.0",
+  "org.typelevel"      %% "cats-effect"         % "3.7.0",
+  "io.netty"            % "netty-codec"         % nettyVersion,
+  "io.netty"            % "netty-codec-http"    % nettyVersion,
+  "io.netty"            % "netty-codec-socks"   % nettyVersion,
+  "io.netty"            % "netty-codec-dns"     % nettyVersion,
+  "io.netty"            % "netty-common"        % nettyVersion,
+  "io.netty"            % "netty-handler"       % nettyVersion,
+  "io.netty"            % "netty-handler-proxy" % nettyVersion,
+  "io.netty"            % "netty-resolver-dns"  % nettyVersion,
+  "ch.qos.logback"      % "logback-classic"     % "1.5.32"     % Test,
+  "org.scalameta"      %% "munit-scalacheck"    % munitVersion % Test,
+  "org.scalameta"      %% "munit"               % munitVersion % Test
 ).map(_.withSources())
 
 ThisBuild / testFrameworks += new TestFramework("munit.Framework")

@@ -11,6 +11,8 @@ import cats.data.NonEmptyChain
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cats.syntax.show._
+import scala.concurrent.duration.*
+import scala.jdk.javaapi.DurationConverters.toJava
 
 import java.util.concurrent.TimeUnit
 
@@ -19,8 +21,8 @@ import java.util.concurrent.TimeUnit
 
   val config = new DefaultAsyncHttpClientConfig.Builder()
     .setCompressionEnforced(true)
-    .setConnectTimeout(500)
-    .setRequestTimeout(3000)
+    .setConnectTimeout(toJava(500.millis))
+    .setRequestTimeout(toJava(5000.millis))
     .setCookieStore(null)
     .build()
 
@@ -33,7 +35,7 @@ import java.util.concurrent.TimeUnit
            )
       r <- c.execute(
              req,
-             Timeout(2000, TimeUnit.MILLISECONDS)
+             Timeout(2013, TimeUnit.MILLISECONDS)
            )
     } yield r.show).attempt.guarantee(IO(underlyingclient.close)).unsafeRunSync()
   ) // this is just a quick and dirty example; don't do this in production code, use a Resource instead
