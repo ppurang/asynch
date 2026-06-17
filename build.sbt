@@ -1,8 +1,5 @@
-enablePlugins(GitVersioning)
-enablePlugins(GitBranchPrompt)
-
 ThisBuild / name         := "asynch"
-ThisBuild / version      := "3.8.4-dont-use-publish-all-01"
+ThisBuild / version      := "3.8.4"
 ThisBuild / organization := "org.purang.net"
 ThisBuild / scalaVersion := "3.8.4"
 
