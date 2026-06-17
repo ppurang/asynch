@@ -17,7 +17,7 @@ import scala.jdk.javaapi.DurationConverters.toJava
 import java.util.concurrent.TimeUnit
 
 @main def start(): Unit =
-  val req = GET > "https://httpbin.org/delay/0" >> Headers(NonEmptyChain(Accept(ApplicationJson)))
+  val req = GET > "https://httpbun.com/get" >> Headers(NonEmptyChain(Accept(ApplicationJson)))
 
   val config = new DefaultAsyncHttpClientConfig.Builder()
     .setCompressionEnforced(true)

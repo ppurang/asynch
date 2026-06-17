@@ -2,14 +2,13 @@ enablePlugins(GitVersioning)
 enablePlugins(GitBranchPrompt)
 
 ThisBuild / name         := "asynch"
-ThisBuild / version      := "3.8.3-dont-use-publish-all-01"
+ThisBuild / version      := "3.8.4-dont-use-publish-all-01"
 ThisBuild / organization := "org.purang.net"
-ThisBuild / scalaVersion := "3.8.3"
+ThisBuild / scalaVersion := "3.8.4"
 
 ThisBuild / crossScalaVersions := Seq(
-  "3.8.3",
-  "3.7.4",
-  "3.3.7",
+  "3.8.4",
+  "3.3.8",
   "2.13.18"
 )
 
@@ -43,8 +42,6 @@ ThisBuild / scalacOptions ++= Seq(
 ) ++ {
   if (scalaVersion.value.matches("^3.")) {
     Seq("-Ykind-projector")
-  } else if (scalaVersion.value.matches("^2.12")) {
-    Seq("-language:higherKinds")
   } else {
     Seq()
   }
@@ -56,11 +53,11 @@ ThisBuild / scalacOptions ++= Seq(
   }
 }
 
-val nettyVersion = "4.2.12.Final"
-val munitVersion = "1.3.0"
+val nettyVersion = "4.2.15.Final"
+val munitVersion = "1.3.3"
 
 ThisBuild / libraryDependencies ++= Seq(
-  "org.asynchttpclient" % "async-http-client"   % "3.0.9",
+  "org.asynchttpclient" % "async-http-client"   % "3.0.11",
   "org.typelevel"      %% "cats-core"           % "2.13.0",
   "org.typelevel"      %% "cats-effect"         % "3.7.0",
   "io.netty"            % "netty-codec"         % nettyVersion,
@@ -71,8 +68,8 @@ ThisBuild / libraryDependencies ++= Seq(
   "io.netty"            % "netty-handler"       % nettyVersion,
   "io.netty"            % "netty-handler-proxy" % nettyVersion,
   "io.netty"            % "netty-resolver-dns"  % nettyVersion,
-  "ch.qos.logback"      % "logback-classic"     % "1.5.32"     % Test,
-  "org.scalameta"      %% "munit-scalacheck"    % munitVersion % Test,
+  "ch.qos.logback"      % "logback-classic"     % "1.5.34"     % Test,
+  "org.scalameta"      %% "munit-scalacheck"    % "1.3.0"      % Test,
   "org.scalameta"      %% "munit"               % munitVersion % Test
 ).map(_.withSources())
 
@@ -80,14 +77,14 @@ ThisBuild / testFrameworks += new TestFramework("munit.Framework")
 
 ThisBuild / console / initialCommands :=
   """
-    |import org.purang.net.http._
+    |import org.purang.net.http.*
     |import org.purang.net.http.asynchttpclient.AsyncHttpClient
     |import org.asynchttpclient.{DefaultAsyncHttpClientConfig, DefaultAsyncHttpClient, AsyncHttpClient => UnderlyingHttpClient}
     |
     |import cats.data.NonEmptyChain
     |import cats.effect.IO
     |import cats.effect.unsafe.implicits.global
-    |import cats.syntax.all._
+    |import cats.syntax.all.*
     |
     |import java.util.concurrent.TimeUnit
     |

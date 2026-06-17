@@ -17,7 +17,7 @@ class HttpRequestSyncSpec extends munit.FunSuite {
 
   test("enable a synchronous http request") {
     val req: HttpRequest =
-      GET > "https://httpbin.org/get" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
+      GET > "https://httpbun.com/get" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
 
     val call: IO[HttpResponse] = for {
       c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.sync[IO](
@@ -35,7 +35,7 @@ class HttpRequestSyncSpec extends munit.FunSuite {
 
   test("a synchronous http request should timeout") {
     val req: HttpRequest =
-      GET > "https://httpbin.org/delay/3" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
+      GET > "https://httpbun.com/delay/3" >> Headers(NonEmptyChain(Accept(ApplicationJson))) >>> "Hmmmmmmmm"
 
     val call: IO[HttpResponse] = for {
       c <- org.purang.net.http.asynchttpclient.AsyncHttpClient.sync[IO](
