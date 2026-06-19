@@ -55,7 +55,7 @@ object AsyncHttpClient {
         for {
           content <- req.body
         } builder.setBody(content.b.getBytes(UTF8))
-        val response =
+        val response                =
           client.executeRequest(builder).get(timeout.length, timeout.unit) // oh no!!!!! well we are sync ;)))
         responseToResponse(response)
       }
