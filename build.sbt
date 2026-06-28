@@ -65,7 +65,7 @@ ThisBuild / libraryDependencies ++= Seq(
   "io.netty"            % "netty-handler"       % nettyVersion,
   "io.netty"            % "netty-handler-proxy" % nettyVersion,
   "io.netty"            % "netty-resolver-dns"  % nettyVersion,
-  "ch.qos.logback"      % "logback-classic"     % "1.5.34"     % Test,
+  "ch.qos.logback"      % "logback-classic"     % "1.5.37"     % Test,
   "org.scalameta"      %% "munit-scalacheck"    % "1.3.0"      % Test,
   "org.scalameta"      %% "munit"               % munitVersion % Test
 ).map(_.withSources())
