@@ -27,7 +27,8 @@ Global / turbo                := true
 Global / cancelable           := true
 Global / onChangedBuildSource := ReloadOnSourceChanges
 Global / lintUnusedKeysOnLoad := false
-Global / semanticdbEnabled    := true
+
+ThisBuild / javaOptions += "--sun-misc-unsafe-memory-access=allow"
 
 ThisBuild / scalacOptions ++= Seq(
   "-encoding",
@@ -37,16 +38,15 @@ ThisBuild / scalacOptions ++= Seq(
   "-deprecation",
   "-language:implicitConversions"
 ) ++ {
-  if (scalaVersion.value.matches("^3.")) {
-    Seq("-Ykind-projector")
-  } else {
-    Seq()
-  }
-} ++ {
-  if (scalaVersion.value.matches("^3.8.*")) {
-    Seq("-Werror")
-  } else {
-    Seq("-Xfatal-warnings")
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, 8)) =>
+      Seq("-Xkind-projector", "-Werror", "-Xsemanticdb")
+
+    case Some((3, 3)) =>
+      Seq("-Ykind-projector", "-Xfatal-warnings", "-Yfuture-lazy-vals")
+
+    case _ =>
+      Seq("-Yrangepos", "-Xfatal-warnings")
   }
 }
 
