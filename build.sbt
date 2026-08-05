@@ -50,7 +50,7 @@ ThisBuild / scalacOptions ++= Seq(
   }
 }
 
-val nettyVersion = "4.2.15.Final"
+val nettyVersion = "4.2.17.Final"
 val munitVersion = "1.3.3"
 
 ThisBuild / libraryDependencies ++= Seq(
