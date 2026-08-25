@@ -56,7 +56,7 @@ val munitVersion = "1.3.3"
 ThisBuild / libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client"   % "3.0.11",
   "org.typelevel"      %% "cats-core"           % "2.13.0",
-  "org.typelevel"      %% "cats-effect"         % "3.7.0",
+  "org.typelevel"      %% "cats-effect"         % "3.7.1",
   "io.netty"            % "netty-codec"         % nettyVersion,
   "io.netty"            % "netty-codec-http"    % nettyVersion,
   "io.netty"            % "netty-codec-socks"   % nettyVersion,
