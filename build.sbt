@@ -1,7 +1,7 @@
 ThisBuild / name         := "asynch"
 ThisBuild / version      := "3.8.4"
 ThisBuild / organization := "org.purang.net"
-ThisBuild / scalaVersion := "3.8.4"
+ThisBuild / scalaVersion := "3.9.0"
 
 ThisBuild / crossScalaVersions := Seq(
   "3.8.4",
